@@ -42,7 +42,7 @@ public:
    * features[-2]: relevance, features[-1]: score -- these must not be used to
    * compute the score. The score field must be updated by this method.
    */
-  virtual void score(FeatureEdge& features) const=0;
+  virtual double score(FeatureEdge& features) const=0;
 
   /**
    * Updates the weights of the model.
@@ -132,7 +132,7 @@ public:
     weights       = orig.weights;
   }
 
-  void score(FeatureEdge& features) const {
+  double score(FeatureEdge& features) const {
     double score = 0;
     for (size_t i = 0; i < dimensions; i++) {
       //DYN score += weights[i] * features.get(i);
@@ -141,6 +141,7 @@ public:
     score += weights[dimensions];
     //DYN features.set(features.size() - 1, score);
     features.score = score;
+    return score;
   }
 
   void update(FeatureEdge features, double output, double mult=1) {
@@ -152,9 +153,9 @@ public:
 //      std::cout << "weight[" << i << "] -= " << learning_rate << " * " <<
 //        error << " * " << features.features[i] << " = " <<
 //        learning_rate * error * features.features[i] << std::endl;
-      weights[i] -= learning_rate * error * features.features[i];
+      weights[i] -= learning_rate * mult * features.features[i];
     }
-    weights[dimensions] -= learning_rate * error;
+    weights[dimensions] -= learning_rate * mult;
 //    std::cout << "LINREG_UPDATE AFTER ";
 //    std::copy(weights.begin(), weights.end(), std::ostream_iterator<double>(std::cout, " "));
 //    std::cout << std::endl;

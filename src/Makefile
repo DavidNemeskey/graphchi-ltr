@@ -22,7 +22,7 @@
 #  Makefile for compiling graphchi collaborative filtering library
 #  Written by Danny Bickson
 #  Thanks to Yucheng Low for fixing the Makefile
-INCFLAGS = -I/usr/local/include/ -I../../src/ -I.
+INCFLAGS = -I/usr/local/include/ -I../../../src/ -I.
 
 # NOTE: Uncomment the flag GRAPHCHI_USE_GSL if you want to compile pmf
 CPPFLAGS = -g $(INCFLAGS) -DEIGEN_NDEBUG -fopenmp -Wall -Wno-strict-aliasing -std=c++0x -DNUM_FEATURES=136

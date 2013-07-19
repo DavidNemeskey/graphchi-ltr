@@ -3,6 +3,8 @@
 
 #include <cmath>
 #include <random>
+#include <vector>
+#include <algorithm>
 #include <iostream>
 
 #include "ml_algorithm.hpp"
@@ -35,8 +37,8 @@ public:
     outputs.resize(hidden_neurons);
   }
 
-  void score(FeatureEdge& features) const {
-    outputs.fill(0);
+  double score(FeatureEdge& features) const {
+    std::fill(outputs.begin(), outputs.end(), 0);
     for (size_t x = 0; x < dimensions; x++) {
       for (size_t h = 0; h < outputs.size(); h++) {
         outputs[h] += features.features[x] * w1[x][h];
@@ -77,13 +79,13 @@ public:
     // TODO: clone() to maintain a reference to the original model
     /* First, let's update the output layer. */
     double deltay = y * (1 - y);
-    for (size_t j = 0; j < wj.size(); j++) {
+    for (size_t j = 0; j < wy.size(); j++) {
       /* sgm'(s) * d(s) / d(w_j). */
       new_wy[j] -= learning_rate * mult * deltay * outputs[j];
     }
 
     /* That was the easy part; now the hidden layer... */
-    for (size_t h = 0; h < wj.size(); h++) {
+    for (size_t h = 0; h < wy.size(); h++) {
       double deltah = outputs[h] * (1 - outputs[h]);
       for (size_t i = 0; i < new_w1.size(); i++) {
         new_w1[i][h] -= learning_rate * mult *
@@ -142,7 +144,7 @@ private:
   WeightVector wy;
 
   /** Outputs of the hidden layer. Filled by score(), needed by update(). */
-  std::vector<double> outputs;
+  mutable std::vector<double> outputs;
 };
 
 #endif

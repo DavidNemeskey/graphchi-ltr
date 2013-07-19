@@ -69,8 +69,8 @@ public:
   /****************************** GraphChi stuff ******************************/
 
   /** The actual RankNet implementation. */
-  virtual void update_weights(graphchi_vertex<TypeVertex, FeatureEdge> &query,
-                              MlModel* umodel) {
+  virtual void compute_gradients(
+      graphchi_vertex<TypeVertex, FeatureEdge> &query, Gradient* umodel) {
       // TODO Make the other version where the documents have edges between them
     for (int i = 0; i < query.num_outedges() - 1; i++) {
       int rel_i = get_relevance(query.outedge(i));

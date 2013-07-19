@@ -25,14 +25,16 @@
  */
 
 #include <iostream>
+#include <iterator>  // ostream_iterator -- DEBUG only
 #include <iomanip>
 #include <map>
 #include <vector>
 
 #include "ltr_common.hpp"
 //#include "util/pthread_tools.hpp"  // mutex
-#include "ml_algorithm.hpp"
+#include "ml_model.h"
 #include "evaluation_measures.hpp"
+#include "linear_regression.h"  // TODO: remove
 
 /** The three phases of the LTR algorithm. */
 enum LtrRunningPhase {
@@ -56,7 +58,7 @@ public:
   ~LtrAlgorithm() {
     delete model;
     delete eval;
-    for (std::vector<MlModel*>::iterator it = parallel_models.begin();
+    for (std::vector<Gradient*>::iterator it = parallel_models.begin();
          it != parallel_models.end(); ++it) {
       delete *it;
     }
@@ -83,9 +85,9 @@ public:
     }
     for (int i = 0; i < ginfo.execthreads; i++) {
       if (iteration == 0) {
-        parallel_models.push_back(model->clone());
+        parallel_models.push_back(model->get_gradient_object());
       } else {
-        *parallel_models[i] = *model;
+        parallel_models[i]->reset();
       }
     }
     std::cout << std::setprecision(10);
@@ -106,7 +108,7 @@ public:
     if (v.get_data().type == QUERY) {  // Only queries have outedges (TODO: ???)
       score_documents(v, ginfo);
       if (phase == TRAINING) {
-        update_weights(v, parallel_models[omp_get_thread_num()]);
+        compute_gradients(v, parallel_models[omp_get_thread_num()]);
       }
       if (phase == TRAINING || phase == VALIDATION) {
         evaluate_model(v, ginfo);
@@ -122,13 +124,9 @@ public:
     // TODO: to separate class?
 
 //    std::cout << "LINREG_UPDATES:" << std::endl;
-    /* Compute the delta. */
-    for (int i = 0; i < ginfo.execthreads; i++) {
-      *(parallel_models[i]) -= *model;
-    }
     /* Add the delta. */
     for (int i = 0; i < ginfo.execthreads; i++) {
-      (*model) += *parallel_models[i];
+      parallel_models[i]->update_parent();
     }
 //    std::cout << "LINREG_UPDATE AFTER ";
 //    LinearRegression* lr_model = (LinearRegression*)model;
@@ -166,14 +164,13 @@ protected:
   }
 
   /**
-   * Updates the weights of the model. The second step in update().
+   * Updates the gradients. The second step in update().
    *
    * The @p umodel is one of @c parallel_models that corresponds to the current
    * execthread.
    */
-  virtual void update_weights(graphchi_vertex<TypeVertex, FeatureEdge> &query,
-                              MlModel* umodel)=0;
-
+  virtual void compute_gradients(
+      graphchi_vertex<TypeVertex, FeatureEdge> &query, Gradient* umodel)=0;
 
   /** Evaluates the model. The third step in update(). */
   void evaluate_model(graphchi_vertex<TypeVertex, FeatureEdge> &query,
@@ -207,7 +204,7 @@ protected:
    * of the central one.
    * @see model
    */
-  std::vector<MlModel*> parallel_models;
+  std::vector<Gradient*> parallel_models;
 };
 
 #endif

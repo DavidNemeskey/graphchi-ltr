@@ -29,7 +29,7 @@
 #include "input_formats.hpp"
 #include "ranknet.hpp"
 #include "evaluation_measures.hpp"
-#include "linear_regression.hpp"
+#include "linear_regression.h"
 //#include "neural_net.hpp"
 
 using namespace graphchi;
@@ -65,8 +65,8 @@ LtrAlgorithm* get_algorithm(std::string name, MlModel* model,
 MlModel* get_ml_model(std::string name, size_t dimensions) {
     if (name == "linreg") {
         return new LinearRegression(dimensions);
-    } else if (name == "nn") {
-        return new NeuralNetwork(dimensions, /* TODO*/ 8);
+//    } else if (name == "nn") {
+//        return new NeuralNetwork(dimensions, /* TODO*/ 8);
     } else {
         return NULL;
     }
@@ -86,7 +86,7 @@ EvaluationMeasure* get_evaluation_measure(std::string name, int cutoff) {
 
 int main(int argc, const char ** argv) {
 //  print_copyright();
-  NeuralNetwork(50, 20);
+//  NeuralNetwork(50, 20);
 
   /* GraphChi initialization will read the command line 
      arguments and the configuration file. */

@@ -29,8 +29,8 @@
 #include "input_formats.hpp"
 #include "ranknet.hpp"
 #include "evaluation_measures.hpp"
-#include "ml_algorithm.hpp"
-#include "neural_net.hpp"
+#include "linear_regression.hpp"
+//#include "neural_net.hpp"
 
 using namespace graphchi;
 
@@ -65,6 +65,8 @@ LtrAlgorithm* get_algorithm(std::string name, MlModel* model,
 MlModel* get_ml_model(std::string name, size_t dimensions) {
     if (name == "linreg") {
         return new LinearRegression(dimensions);
+    } else if (name == "nn") {
+        return new NeuralNetwork(dimensions, /* TODO*/ 8);
     } else {
         return NULL;
     }

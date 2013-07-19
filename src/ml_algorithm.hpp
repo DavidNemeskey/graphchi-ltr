@@ -25,10 +25,6 @@
  * The implementations of the models may be split into separate files later.
  */
 
-#include <algorithm>
-#include <iterator>
-#include <iostream>
-
 class MlModel {
 protected:
   /** Default constructor, do not use. */
@@ -46,31 +42,10 @@ public:
   virtual double score(double* const& features) const=0;
 
   /**
-   * Updates the weights of the model.
-   * @param[in] features the features of the current item.
-   * @param[in] output the output for the current item, i.e. score(features).
-   * @param[in] mult a multiplier for the gradients. The LTR algorithm, for
-   *                 example, passes d C/d s_i here.
-   * @note double* const& = const double[]&
+   * Creates the gradient object for the model that aggregates the gradient
+   * updates.
    */
-  virtual void update(double* const& features, double output, double mult=1)=0; 
-
-  /**
-   * Clones this object. Because we don't know the type of the model during
-   * runtime, we cannot use a copy constructor for this.
-   */
-  virtual MlModel* clone()=0;
-  /* We can do this the right way. */
-  virtual MlModel& operator=(MlModel const& orig)=0;
-  /** Resets the weights to 1. */
-  virtual void reset()=0;
-
-  /* For update: foreach (m in models) model += m; m /= len(models); */
-
-  /** Adds the weights of @p other to this model's. */
-  virtual MlModel& operator+=(MlModel const& other)=0;
-  /** Subtracts the weights of @p other to this model's. */
-  virtual MlModel& operator-=(MlModel const& other)=0;
+  virtual MlModel* get_gradient_object()=0;
 
 protected:
   /** Dimensions of the feature vector. */
@@ -79,91 +54,31 @@ protected:
   double learning_rate;
 };
 
-// TODO: learning_rate to class!
 /**
- * A simple linear regression model.
- * @todo regularization!
- * @todo use Eigen vectors
+ * Ancestor for the gradient objects. Gradients objects collect the steps taken
+ * by the learning algorithm in the feature weight space, and then update
+ * the model.
+ *
+ * @see MlModel#get_gradient_object()
  */
-class LinearRegression : public MlModel {
-public:
-  LinearRegression(size_t dimensions, double learning_rate=0.001)
-    : MlModel(dimensions, learning_rate) {
-    weights.resize(dimensions + 1, 1);
-  }
+class Gradient {
+  /** Resets the weights to 0. */
+  virtual void reset()=0;
 
-  LinearRegression(LinearRegression const& orig) {
-    copy_content(orig);
-  }
+  /**
+   * Updates the gradients.
+   *
+   * @param[in] features the features of the current item.
+   * @param[in] output the output for the current item, i.e. score(features).
+   * @param[in] mult a multiplier for the gradients. The LTR algorithm, for
+   *                 example, passes d C/d s_i here.
+   * @note double* const& = const double[]&
+   */
+  virtual void update(double* const& features, double output, double mult=1)=0;
 
-  MlModel& operator=(MlModel const& orig) {
-    LinearRegression const& o = dynamic_cast<LinearRegression const&>(orig);
-    if (this != &o) {
-      copy_content(o);
-    }
-    return *this;
-  }
-
-  MlModel* clone() {
-    return new LinearRegression(*dynamic_cast<LinearRegression*>(this));
-  }
-
-  void reset() {
-    std::fill(weights.begin(), weights.end(), 1);
-  }
-
-  MlModel& operator+=(MlModel const& other) {
-    LinearRegression const& o = dynamic_cast<LinearRegression const&>(other);
-    for (size_t i = 0; i < o.weights.size(); i++) {
-      weights[i] += o.weights[i];
-    }
-    return *this;
-  }
-
-  MlModel& operator-=(MlModel const& other) {
-    LinearRegression const& o = dynamic_cast<LinearRegression const&>(other);
-    for (size_t i = 0; i < o.weights.size(); i++) {
-      weights[i] -= o.weights[i];
-    }
-    return *this;
-  }
-
-  void copy_content(LinearRegression const& orig) {
-    dimensions    = orig.dimensions;
-    learning_rate = orig.learning_rate;
-    weights       = orig.weights;
-  }
-
-  double score(double* const& features) const {
-    double score = 0;
-    for (size_t i = 0; i < dimensions; i++) {
-      //DYN score += weights[i] * features.get(i);
-      score += weights[i] * features[i];
-    }
-    score += weights[dimensions];
-    //DYN features.set(features.size() - 1, score);
-    return score;
-  }
-
-  void update(double* const& features, double output, double mult=1) {
-//    std::cout << "LINREG_UPDATE BEFORE ";
-//    std::copy(weights.begin(), weights.end(), std::ostream_iterator<double>(std::cout, " "));
-//    std::cout << std::endl;
-    for (size_t i = 0; i < dimensions; i++) {
-//      //DYN weights[i] -= learning_rate * error * features.get(i);
-//      std::cout << "weight[" << i << "] -= " << learning_rate << " * " <<
-//        error << " * " << features.features[i] << " = " <<
-//        learning_rate * error * features.features[i] << std::endl;
-      weights[i] -= learning_rate * mult * features[i];
-    }
-    weights[dimensions] -= learning_rate * mult;
-//    std::cout << "LINREG_UPDATE AFTER ";
-//    std::copy(weights.begin(), weights.end(), std::ostream_iterator<double>(std::cout, " "));
-//    std::cout << std::endl;
-  }
-// DEBUG private:
-  /** The weight vector. Size is dimensions + 1, the last item is the noise. */
-  std::vector<double> weights;
+  /** Updates the parent. */
+  virtual void update_parent();
 };
 
+// TODO: learning_rate to class!
 #endif

@@ -37,11 +37,11 @@ public:
     outputs.resize(hidden_neurons);
   }
 
-  double score(FeatureEdge& features) const {
+  double score(double* const& features) const {
     std::fill(outputs.begin(), outputs.end(), 0);
     for (size_t x = 0; x < dimensions; x++) {
       for (size_t h = 0; h < outputs.size(); h++) {
-        outputs[h] += features.features[x] * w1[x][h];
+        outputs[h] += features[x] * w1[x][h];
       }
     }
     for (size_t i = 0; i < outputs.size(); i++) {
@@ -57,7 +57,7 @@ public:
     return y;
   }
 
-  void update(FeatureEdge features, double y, double mult=1) {
+  void update(double* const& features, double y, double mult=1) {
     /* Have to run score() again to fill up the outputs vector... */
     score(features);
 
@@ -89,7 +89,7 @@ public:
       double deltah = outputs[h] * (1 - outputs[h]);
       for (size_t i = 0; i < new_w1.size(); i++) {
         new_w1[i][h] -= learning_rate * mult *
-                        deltay * wy[h] * deltah * features.features[i];
+                        deltay * wy[h] * deltah * features[i];
       }
     }
 

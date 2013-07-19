@@ -88,8 +88,8 @@ public:
 //            cost(prob_ij(s_i, s_j), 0.5*(1 + S_ij)) << ", error: " << error << std::endl;
           //DYN umodel->update(*(query.outedge(i)->get_vector()), s_i, error);
           //DYN umodel->update(*(query.outedge(j)->get_vector()), s_j, -error);
-          umodel->update(query.outedge(i)->get_data(), s_i, error);
-          umodel->update(query.outedge(j)->get_data(), s_j, -error);
+          umodel->update(query.outedge(i)->get_data().features, s_i, error);
+          umodel->update(query.outedge(j)->get_data().features, s_j, -error);
           /* error(s_i) = -error(s_j) */
         }
       }

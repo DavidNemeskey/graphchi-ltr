@@ -41,8 +41,9 @@ public:
   /**
    * features[-2]: relevance, features[-1]: score -- these must not be used to
    * compute the score. The score field must be updated by this method.
+   * @note double* const& = const double[]&
    */
-  virtual double score(FeatureEdge& features) const=0;
+  virtual double score(double* const& features) const=0;
 
   /**
    * Updates the weights of the model.
@@ -50,8 +51,9 @@ public:
    * @param[in] output the output for the current item, i.e. score(features).
    * @param[in] mult a multiplier for the gradients. The LTR algorithm, for
    *                 example, passes d C/d s_i here.
+   * @note double* const& = const double[]&
    */
-  virtual void update(FeatureEdge features, double output, double mult=1)=0; 
+  virtual void update(double* const& features, double output, double mult=1)=0; 
 
   /**
    * Clones this object. Because we don't know the type of the model during
@@ -132,19 +134,18 @@ public:
     weights       = orig.weights;
   }
 
-  double score(FeatureEdge& features) const {
+  double score(double* const& features) const {
     double score = 0;
     for (size_t i = 0; i < dimensions; i++) {
       //DYN score += weights[i] * features.get(i);
-      score += weights[i] * features.features[i];
+      score += weights[i] * features[i];
     }
     score += weights[dimensions];
     //DYN features.set(features.size() - 1, score);
-    features.score = score;
     return score;
   }
 
-  void update(FeatureEdge features, double output, double mult=1) {
+  void update(double* const& features, double output, double mult=1) {
 //    std::cout << "LINREG_UPDATE BEFORE ";
 //    std::copy(weights.begin(), weights.end(), std::ostream_iterator<double>(std::cout, " "));
 //    std::cout << std::endl;
@@ -153,7 +154,7 @@ public:
 //      std::cout << "weight[" << i << "] -= " << learning_rate << " * " <<
 //        error << " * " << features.features[i] << " = " <<
 //        learning_rate * error * features.features[i] << std::endl;
-      weights[i] -= learning_rate * mult * features.features[i];
+      weights[i] -= learning_rate * mult * features[i];
     }
     weights[dimensions] -= learning_rate * mult;
 //    std::cout << "LINREG_UPDATE AFTER ";

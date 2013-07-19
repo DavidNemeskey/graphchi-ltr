@@ -160,7 +160,7 @@ protected:
     for (int doc = 0; doc < query.num_outedges(); doc++) {
       //DYN model->score(*(v.outedge(e)->get_vector()));
       FeatureEdge fe = query.outedge(doc)->get_data();
-      model->score(fe);
+      fe.score = model->score(fe.features);
       query.outedge(doc)->set_data(fe);
     }
   }

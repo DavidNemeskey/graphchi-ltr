@@ -29,8 +29,8 @@
 #include "input_formats.hpp"
 #include "ranknet.hpp"
 #include "evaluation_measures.hpp"
-#include "linear_regression.h"
-//#include "neural_net.hpp"
+#include "ml/linear_regression.h"
+//#include "ml/neural_net.hpp"
 
 using namespace graphchi;
 

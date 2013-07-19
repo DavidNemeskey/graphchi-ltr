@@ -32,9 +32,9 @@
 
 #include "ltr_common.hpp"
 //#include "util/pthread_tools.hpp"  // mutex
-#include "ml_model.h"
+#include "ml/ml_model.h"
 #include "evaluation_measures.hpp"
-#include "linear_regression.h"  // TODO: remove
+#include "ml/linear_regression.h"  // TODO: remove
 
 /** The three phases of the LTR algorithm. */
 enum LtrRunningPhase {

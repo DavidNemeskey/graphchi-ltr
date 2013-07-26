@@ -1,5 +1,5 @@
-#ifndef DEF_ML_ALGORITHM_H
-#define DEF_ML_ALGORITHM_H
+#ifndef DEF_LINEAR_REGRESSION_H
+#define DEF_LINEAR_REGRESSION_H
 /**
  * @file
  * @author  David Nemeskey
@@ -50,7 +50,7 @@ public:
 
 class LinearRegressionGradient : public Gradient {
 public:
-  LinearRegressionGradient(LinearRegression* parent);
+  LinearRegressionGradient(LinearRegression& parent);
 
   /** Resets the gradients to 0. */
   void reset();
@@ -63,7 +63,7 @@ public:
 
 private:
   /** Reference to the parent. */
-  LinearRegression* parent;
+  LinearRegression& parent;
   /** The gradients. */
   std::vector<double> gradients;
 };

@@ -23,6 +23,8 @@
  */
 
 #include "linear_regression.h"
+//#include <iostream>
+//#include <iterator>
 
 LinearRegression::LinearRegression(
     size_t dimensions, double learning_rate)
@@ -31,7 +33,7 @@ LinearRegression::LinearRegression(
 }
 
 Gradient* LinearRegression::get_gradient_object() {
-  return new LinearRegressionGradient(this);
+  return new LinearRegressionGradient(*this);
 }
 
 double LinearRegression::score(double* const& features) const {
@@ -43,8 +45,9 @@ double LinearRegression::score(double* const& features) const {
   return score;
 }
 
-LinearRegressionGradient::LinearRegressionGradient(LinearRegression* parent) {
-  gradients.resize(parent->dimensions + 1, 1);  // Initialize to 0
+LinearRegressionGradient::LinearRegressionGradient(LinearRegression& parent)
+    : parent(parent) {
+  gradients.resize(parent.dimensions + 1, 0);  // Initialize to 0
 }
 
 void LinearRegressionGradient::reset() {
@@ -52,15 +55,19 @@ void LinearRegressionGradient::reset() {
 }
 
 void LinearRegressionGradient::update(double* const& features, double output, double mult) {
-  for (size_t i = 0; i < parent->dimensions; i++) {
-    gradients[i] += parent->learning_rate * mult * features[i];
+  for (size_t i = 0; i < parent.dimensions; i++) {
+    gradients[i] += parent.learning_rate * mult * features[i];
   }
-  gradients[parent->dimensions] += parent->learning_rate * mult;
+  gradients[parent.dimensions] += parent.learning_rate * mult;
 }
 
 void LinearRegressionGradient::update_parent() {
+//  std::cout << "LINREG_UPDATE_PARENT";
+//  std::copy(gradients.begin(), gradients.end(),
+//            std::ostream_iterator<double>(std::cout, " "));
+//  std::cout << std::endl;
   for (size_t i = 0; i < gradients.size(); i++) {
-    parent->weights[i] -= gradients[i];
+    parent.weights[i] -= gradients[i];
   }
 }
 

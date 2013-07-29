@@ -22,10 +22,11 @@
 #  Makefile for compiling graphchi collaborative filtering library
 #  Written by Danny Bickson
 #  Thanks to Yucheng Low for fixing the Makefile
-INCFLAGS = -I/usr/local/include/ -I../../../src/ -I.
+INCFLAGS = -I/usr/local/include/ -I/usr/include/eigen3 -I../../../src/ -I.
+EIGEN_FLAGS = -msse2 -DEIGEN_NDEBUG -DEIGEN_NO_DEBUG
 
 # NOTE: Uncomment the flag GRAPHCHI_USE_GSL if you want to compile pmf
-CPPFLAGS = -g $(INCFLAGS) -DEIGEN_NDEBUG -fopenmp -Wall -Wno-strict-aliasing -std=c++0x -DNUM_FEATURES=136
+CPPFLAGS = -g -ggdb -O3 $(INCFLAGS) $(EIGEN_FLAGS) -fopenmp -Wall -Wno-strict-aliasing -std=c++0x -DNUM_FEATURES=136
 # NOTE: uncomment the flag -lgsl if you want to compile pmf
 LINKFLAGS = -lz 
 # Note : on Ubuntu on some compilers -lz is not detected properly so it is 

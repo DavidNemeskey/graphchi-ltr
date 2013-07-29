@@ -93,8 +93,11 @@ public:
     std::cout << std::setprecision(10);
     std::cout << "LINREG_UPDATE BEFORE ";
     LinearRegression* lr_model = (LinearRegression*)model;
-    std::copy(lr_model->weights.begin(), lr_model->weights.end(),
-              std::ostream_iterator<double>(std::cout, " "));
+    for (size_t i = 0; i < lr_model->weights.size(); i++) {
+      std::cout << lr_model->weights[i] << " ";
+    }
+//    std::copy(lr_model->weights.begin(), lr_model->weights.end(),
+//              std::ostream_iterator<double>(std::cout, " "));
     std::cout << std::endl;
   }
 

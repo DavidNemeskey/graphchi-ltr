@@ -25,8 +25,11 @@
  */
 
 #include <vector>
+#include <Eigen/Dense>
 
 #include "ml_model.h"
+
+using Eigen::VectorXd;
 
 /**
  * A simple linear regression model.
@@ -43,7 +46,7 @@ public:
 
 //protected:
   /** The weight vector. Size is dimensions + 1, the last item is the noise. */
-  std::vector<double> weights;
+  VectorXd weights;
 
   friend class LinearRegressionGradient;
 };
@@ -65,7 +68,7 @@ private:
   /** Reference to the parent. */
   LinearRegression& parent;
   /** The gradients. */
-  std::vector<double> gradients;
+  VectorXd gradients;
 };
 
 #endif

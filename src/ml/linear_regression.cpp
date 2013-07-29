@@ -23,13 +23,15 @@
  */
 
 #include "linear_regression.h"
-//#include <iostream>
+#include <iostream>
 //#include <iterator>
+
+using Eigen::Map;
 
 LinearRegression::LinearRegression(
     size_t dimensions, double learning_rate)
   : MlModel(dimensions, learning_rate) {
-  weights.resize(dimensions + 1, 1);
+  weights = VectorXd::Constant(dimensions + 1, 1);
 }
 
 Gradient* LinearRegression::get_gradient_object() {
@@ -37,37 +39,35 @@ Gradient* LinearRegression::get_gradient_object() {
 }
 
 double LinearRegression::score(double* const& features) const {
-  double score = 0;
-  for (size_t i = 0; i < dimensions; i++) {
-    score += weights[i] * features[i];
-  }
+  double score = Map<VectorXd>(features, dimensions).transpose() *
+                 weights.head(dimensions);
   score += weights[dimensions];
   return score;
 }
 
 LinearRegressionGradient::LinearRegressionGradient(LinearRegression& parent)
     : parent(parent) {
-  gradients.resize(parent.dimensions + 1, 0);  // Initialize to 0
+  reset();
 }
 
 void LinearRegressionGradient::reset() {
-  std::fill(gradients.begin(), gradients.end(), 0);
+  gradients = VectorXd::Constant(parent.dimensions + 1, 0);
 }
 
 void LinearRegressionGradient::update(double* const& features, double output, double mult) {
-  for (size_t i = 0; i < parent.dimensions; i++) {
-    gradients[i] += parent.learning_rate * mult * features[i];
-  }
+  gradients.head(parent.dimensions) +=
+      Map<VectorXd>(features, parent.dimensions) * mult * parent.learning_rate;
   gradients[parent.dimensions] += parent.learning_rate * mult;
 }
 
 void LinearRegressionGradient::update_parent() {
-//  std::cout << "LINREG_UPDATE_PARENT";
+  std::cout << "LINREG_UPDATE_PARENT";
+  for (size_t i = 0; i < gradients.size(); i++) {
+    std::cout << gradients[i] << " ";
+  }
 //  std::copy(gradients.begin(), gradients.end(),
 //            std::ostream_iterator<double>(std::cout, " "));
-//  std::cout << std::endl;
-  for (size_t i = 0; i < gradients.size(); i++) {
-    parent.weights[i] -= gradients[i];
-  }
+  std::cout << std::endl;
+  parent.weights -= gradients;
 }
 

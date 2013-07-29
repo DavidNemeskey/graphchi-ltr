@@ -33,14 +33,18 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <Eigen/Dense>
+
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
 
 /** Stores the weights between two processing layers. Size: input x output. */
-typedef std::vector<std::vector<double> > WeightMatrix;
+typedef MatrixXd WeightMatrix;
 /**
  * Stores the weights of the output layer.
  * @todo delete if not needed
  */
-typedef std::vector<double> WeightVector;
+typedef VectorXd WeightVector;
 
 /**
  * A model based on a neural network. It has the following restrictions:
@@ -75,19 +79,23 @@ private:
    * score() invokes this method with @c outputs as @p outputs1.
    */
   double score_inner(double* const& features,
-                     std::vector<double>& outputs1) const;
+                     VectorXd& outputs1) const;
+//                     std::vector<double>& outputs1) const;
   /** Initializes the individual weights to random numbers between 0.1 and 1. */
   void initialize_weights(size_t hidden_neurons);
 
 private:
   /** Parameter for @c sigma. */
   double K;
-  /** Weights of the first (and only) hidden layer. */
+  /**
+   * Weights of the first (and only) hidden layer. An
+   * dimensions x hidden_neurons-sized matrix.
+   */
   WeightMatrix w1;
-  /** Weights of the output layer. */
+  /** Weights of the output layer. Its length == hidden_neurons. */
   WeightVector wy;
   /** Outputs of the hidden layer. Filled by score(), needed by update(). */
-  mutable std::vector<double> outputs;
+  mutable VectorXd outputs;
 
   friend class NeuralNetworkGradient;
   friend std::ostream& operator<<(std::ostream& os, const NeuralNetwork& nn);
@@ -114,7 +122,7 @@ private:
    * The outputs of the first layer. Needed as we need to run our parent's
    * score method to compute all gradients.
    */
-  std::vector<double> outputs;
+  VectorXd outputs;
   /** Gradients for the first layer. */
   WeightMatrix gradients1;
   /** Gradients for the output layer. */

@@ -60,6 +60,8 @@ public:
 
   inline double score(double* const& features) const;
 
+  Gradient* get_gradient_object();
+
   /** The sigma function... */
   double sigma(double x) const;
   /** ... and its derivative. */
@@ -73,7 +75,7 @@ private:
    * score() invokes this method with @c outputs as @p outputs1.
    */
   double score_inner(double* const& features,
-                     std::vector<double> outputs1) const;
+                     std::vector<double>& outputs1) const;
   /** Initializes the individual weights to random numbers between 0.1 and 1. */
   void initialize_weights(size_t hidden_neurons);
 
@@ -88,7 +90,10 @@ private:
   mutable std::vector<double> outputs;
 
   friend class NeuralNetworkGradient;
+  friend std::ostream& operator<<(std::ostream& os, const NeuralNetwork& nn);
 };
+
+std::ostream& operator<<(std::ostream& os, const NeuralNetwork& nn);
 
 class NeuralNetworkGradient : public Gradient {
 public:

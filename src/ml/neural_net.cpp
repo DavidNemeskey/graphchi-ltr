@@ -25,7 +25,7 @@ void print_vec(const std::string& s, const VectorXd& v) {
 
 NeuralNetwork::NeuralNetwork(size_t dimensions, size_t hidden_neurons,
                              double learning_rate)
-    : MlModel(dimensions, learning_rate), K(1) {
+    : MlModel(dimensions, learning_rate), afn(Sigma(1)) {
   initialize_weights(hidden_neurons);
   outputs = VectorXd::Zero(hidden_neurons);
 }
@@ -44,11 +44,10 @@ double NeuralNetwork::score_inner(double* const& features,
 //    }
 //  }
   outputs1 = Map<RowVectorXd>(features, dimensions) * w1;
-  SigmaFunctor sf(K);
   for (size_t i = 0; i < outputs1.size(); i++) {
     std::cout << "outputs[" << i << "] == " << outputs1[i] << std::endl;
   }
-  outputs1 = outputs1.unaryExpr(sf);  // TODO: into the previous expression
+  outputs1 = outputs1.unaryExpr(afn.act());  // TODO: into the previous expression
   for (size_t i = 0; i < outputs1.size(); i++) {
     std::cout << "sigma(outputs[" << i << "]) == " << outputs1[i] << std::endl;
   }
@@ -63,27 +62,13 @@ double NeuralNetwork::score_inner(double* const& features,
 //    y += outputs1[h] * wy[h];
 //  }
   y = outputs1.transpose() * wy;  // TODO: one line
-  y = sigma(y);
+  y = afn.act()(y);
 
   return y;
 }
 
 Gradient* NeuralNetwork::get_gradient_object() {
   return new NeuralNetworkGradient(*this);
-}
-
-/** The sigma function... */
-double NeuralNetwork::sigma(double x) const {
-  return 1 / (1 + exp(-K * x));
-}
-/** ... and its derivative. */
-double NeuralNetwork::sigma_deriv(double x) const {
-  double fx = sigma(x);
-  return fx * (1 - fx);
-}
-/** The inverse of the sigma (logistic) function. */
-double NeuralNetwork::logit(double x) const {
-  return log(x) - log(1 - x);
 }
 
 void NeuralNetwork::initialize_weights(size_t hidden_neurons) {
@@ -143,7 +128,8 @@ void NeuralNetworkGradient::update(double* const& features,
   std::cout << std::endl;
 
   /* First, let's update the output layer. */
-  double deltay = y * (1 - y);
+  //double deltay = y * (1 - y);
+  double deltay = parent.afn.deriv()(y);
   std::cout << "deltay == " << deltay << std::endl;
 //  for (size_t j = 0; j < parent.wy.size(); j++) {
 //    /* sgm'(s) * d(s) / d(w_j). */
@@ -157,7 +143,8 @@ void NeuralNetworkGradient::update(double* const& features,
             << " * " << deltay << " * outputs" << std::endl;
   print_vec("Gradientsy:", gradientsy);
 
-  VectorXd deltah = (outputs.array() * (1 - outputs.array())).matrix();
+  //VectorXd deltah = (outputs.array() * (1 - outputs.array())).matrix();
+  VectorXd deltah = outputs.unaryExpr(parent.afn.deriv());
   print_vec("deltah:", deltah);
   VectorXd deltah_wy = (parent.wy.array() * deltah. array()).matrix();
   print_vec("parent.wy:", parent.wy);

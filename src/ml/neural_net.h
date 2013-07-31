@@ -24,9 +24,7 @@
  * A simple neural network with a single hidden layer.
  */
 
-#include <vector>
-
-#include "ml_model.h"
+#include "ml/ml_model.h"
 
 #include <cmath>
 #include <random>
@@ -34,6 +32,11 @@
 #include <algorithm>
 #include <iostream>
 #include <Eigen/Dense>
+
+#include "ml/neural_net_activation.h"
+
+// TODO: x_o = 1 input
+// TODO: select activation object
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -66,13 +69,6 @@ public:
 
   Gradient* get_gradient_object();
 
-  /** The sigma function... */
-  double sigma(double x) const;
-  /** ... and its derivative. */
-  double sigma_deriv(double x) const;
-  /** The inverse of the sigma (logistic) function. */
-  double logit(double x) const;
-
 private:
   /**
    * Scores the document and puts the outputs of layer 1 to @p outputs1.
@@ -85,8 +81,8 @@ private:
   void initialize_weights(size_t hidden_neurons);
 
 private:
-  /** Parameter for @c sigma. */
-  double K;
+  /** The activation function. */
+  const Activation& afn;
   /**
    * Weights of the first (and only) hidden layer. An
    * dimensions x hidden_neurons-sized matrix.

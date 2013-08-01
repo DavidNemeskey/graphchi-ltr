@@ -5,9 +5,15 @@
 ActivationAct::ActivationAct(const Activation& parent) : parent_(parent) {}
 ActivationDeriv::ActivationDeriv(const Activation& parent) : parent_(parent) {}
 
-Activation::Activation(const std::string& name) : act_(*this), deriv_(*this), name(name) {}
+Activation::Activation() : act_(new ActivationAct(*this)),
+                           deriv_(new ActivationDeriv(*this)) {}
 
-Sigma::Sigma(double K) : Activation("Sigma"), K(K) {}
+Activation::~Activation() {
+  delete act_;
+  delete deriv_;
+}
+
+Sigma::Sigma(double K) : K(K) {}
 
 double Sigma::activation(double x) const {
   return 1 / (1 + exp(-K * x));

@@ -24,9 +24,6 @@
  * Activation functions for neural net models.
  */
 
-#include <string>
-#include <iostream>
-
 class ActivationAct;
 class ActivationDeriv;
 
@@ -42,7 +39,8 @@ class ActivationDeriv;
  */
 class Activation {
 public:
-  Activation(const std::string& name="Activation");
+  Activation();
+  virtual ~Activation();
 
   /** The activation function... */
   virtual double activation(double x) const=0;
@@ -55,29 +53,26 @@ public:
   /**
    * Returns the object, whose <tt>operator()</tt> is the activation function.
    */
-  inline const ActivationAct& act() const { return act_; }
+  inline const ActivationAct& act() const { return *act_; }
   /**
    * Returns the object, whose <tt>operator()</tt> is the derivative of the
    * activation function.
    */
-  inline const ActivationDeriv& deriv() const { return deriv_; }
+  inline const ActivationDeriv& deriv() const { return *deriv_; }
 
-protected:
+private:
   /** The object, whose <tt>operator()</tt> is the activation function. */
-  const ActivationAct& act_;
+  const ActivationAct* act_;
   /**
    * The object, whose <tt>operator()</tt> is the derivative of the activation
    * function.
    */
-  const ActivationDeriv& deriv_;
-
-public:
-  std::string name;
+  const ActivationDeriv* deriv_;
 };
 
 struct ActivationAct {
   ActivationAct(const Activation& parent);
-  inline double operator()(double x) const { std::cout << "HELLO" << parent_.name << std::endl; return parent_.activation(x); }
+  inline double operator()(double x) const { return parent_.activation(x); }
 
   /** The Activation object whose activation function this object calls. */
   const Activation& parent_;

@@ -24,10 +24,11 @@ void print_vec(const std::string& s, const VectorXd& v) {
 };
 
 NeuralNetwork::NeuralNetwork(size_t dimensions, size_t hidden_neurons,
-                             double learning_rate)
-    : MlModel(dimensions, learning_rate), afn(Sigma(1)) {
+                             double learning_rate, Activation* act_fn)
+    : MlModel(dimensions, learning_rate) {
   initialize_weights(hidden_neurons);
   outputs = VectorXd::Zero(hidden_neurons);
+  afn.reset(act_fn != NULL ? act_fn : new Sigma(1));
 }
 
 double NeuralNetwork::score(double* const& features) const {
@@ -47,7 +48,7 @@ double NeuralNetwork::score_inner(double* const& features,
   for (size_t i = 0; i < outputs1.size(); i++) {
     std::cout << "outputs[" << i << "] == " << outputs1[i] << std::endl;
   }
-  outputs1 = outputs1.unaryExpr(afn.act());  // TODO: into the previous expression
+  outputs1 = outputs1.unaryExpr(afn->act());  // TODO: into the previous expression
   for (size_t i = 0; i < outputs1.size(); i++) {
     std::cout << "sigma(outputs[" << i << "]) == " << outputs1[i] << std::endl;
   }
@@ -62,7 +63,7 @@ double NeuralNetwork::score_inner(double* const& features,
 //    y += outputs1[h] * wy[h];
 //  }
   y = outputs1.transpose() * wy;  // TODO: one line
-  y = afn.act()(y);
+  y = afn->act()(y);
 
   return y;
 }
@@ -129,7 +130,7 @@ void NeuralNetworkGradient::update(double* const& features,
 
   /* First, let's update the output layer. */
   //double deltay = y * (1 - y);
-  double deltay = parent.afn.deriv()(y);
+  double deltay = parent.afn->deriv()(y);
   std::cout << "deltay == " << deltay << std::endl;
 //  for (size_t j = 0; j < parent.wy.size(); j++) {
 //    /* sgm'(s) * d(s) / d(w_j). */
@@ -144,7 +145,7 @@ void NeuralNetworkGradient::update(double* const& features,
   print_vec("Gradientsy:", gradientsy);
 
   //VectorXd deltah = (outputs.array() * (1 - outputs.array())).matrix();
-  VectorXd deltah = outputs.unaryExpr(parent.afn.deriv());
+  VectorXd deltah = outputs.unaryExpr(parent.afn->deriv());
   print_vec("deltah:", deltah);
   VectorXd deltah_wy = (parent.wy.array() * deltah. array()).matrix();
   print_vec("parent.wy:", parent.wy);

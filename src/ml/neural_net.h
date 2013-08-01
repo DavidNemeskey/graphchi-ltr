@@ -30,6 +30,7 @@
 #include <random>
 #include <vector>
 #include <algorithm>
+#include <memory>
 #include <iostream>
 #include <Eigen/Dense>
 
@@ -61,9 +62,13 @@ typedef VectorXd WeightVector;
  */
 class NeuralNetwork : public MlModel {
 public:
-  /** @param[in] hidden_neurons the number of neurons in the hidden layer. */
+  /**
+   * @param[in] hidden_neurons the number of neurons in the hidden layer.
+   * @param[in] act_fn the activation function. Defaults to @c NULL (that is,
+   *                    <tt>Sigma(1)</tt>).
+   */
   NeuralNetwork(size_t dimensions, size_t hidden_neurons,
-                double learning_rate=0.0001);
+                double learning_rate=0.0001, Activation* act_fn=NULL);
 
   inline double score(double* const& features) const;
 
@@ -82,7 +87,7 @@ private:
 
 private:
   /** The activation function. */
-  const Activation& afn;
+  std::auto_ptr<Activation> afn;
   /**
    * Weights of the first (and only) hidden layer. An
    * dimensions x hidden_neurons-sized matrix.

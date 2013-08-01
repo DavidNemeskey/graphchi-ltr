@@ -37,7 +37,6 @@
 #include "ml/neural_net_activation.h"
 
 // TODO: x_o = 1 input
-// TODO: select activation object
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -56,9 +55,7 @@ typedef VectorXd WeightVector;
  * 1. a single hidden layer
  * 2. the same activation function in all layers
  *
- * @todo activation function to separate class
  * @todo regularization!
- * @todo use the eigen library to speed up computation
  */
 class NeuralNetwork : public MlModel {
 public:

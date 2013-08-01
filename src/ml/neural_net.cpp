@@ -16,7 +16,7 @@ private:
 
 void print_vec(const std::string& s, const VectorXd& v) {
   std::cout << s << " ";
-  for (size_t i = 0; i < v.size(); i++) {
+  for (VectorXd::Index i = 0; i < v.size(); i++) {
     std::cout << v(i) << " ";
   }
   std::cout << std::endl;
@@ -45,11 +45,11 @@ double NeuralNetwork::score_inner(double* const& features,
 //    }
 //  }
   outputs1 = Map<RowVectorXd>(features, dimensions) * w1;
-  for (size_t i = 0; i < outputs1.size(); i++) {
+  for (VectorXd::Index i = 0; i < outputs1.size(); i++) {
     std::cout << "outputs[" << i << "] == " << outputs1[i] << std::endl;
   }
   outputs1 = outputs1.unaryExpr(afn->act());  // TODO: into the previous expression
-  for (size_t i = 0; i < outputs1.size(); i++) {
+  for (VectorXd::Index i = 0; i < outputs1.size(); i++) {
     std::cout << "sigma(outputs[" << i << "]) == " << outputs1[i] << std::endl;
   }
 //  for (size_t i = 0; i < outputs1.size(); i++) {
@@ -78,8 +78,8 @@ void NeuralNetwork::initialize_weights(size_t hidden_neurons) {
   re.seed(1001);
 
   w1.resize(dimensions, hidden_neurons);  // TODO: +1 noise
-  for (size_t i = 0; i < dimensions; i++) {
-    for (size_t j = 0; j < hidden_neurons; j++) {
+  for (WeightMatrix::Index i = 0; i < w1.rows(); i++) {
+    for (WeightMatrix::Index j = 0; j < w1.cols(); j++) {
       w1(i, j) = unif(re);
     }
   }
@@ -121,7 +121,7 @@ void NeuralNetworkGradient::update(double* const& features,
 
   std::cout << "updating " << features[0] << ", " << features[1] << ", " << features[2] << "..." << std::endl;
   std::cout << "Outputs ";
-  for (size_t i = 0; i < outputs.size(); i++) {
+  for (VectorXd::Index i = 0; i < outputs.size(); i++) {
     std::cout << outputs(i) << " ";
   }
 //  std::copy(outputs.begin(), outputs.end(),

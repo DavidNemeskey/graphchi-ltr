@@ -62,7 +62,7 @@ void LinearRegressionGradient::update(double* const& features, double output, do
 
 void LinearRegressionGradient::update_parent() {
   std::cout << "LINREG_UPDATE_PARENT";
-  for (size_t i = 0; i < gradients.size(); i++) {
+  for (VectorXd::Index i = 0; i < gradients.size(); i++) {
     std::cout << gradients[i] << " ";
   }
 //  std::copy(gradients.begin(), gradients.end(),

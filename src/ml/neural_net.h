@@ -22,6 +22,10 @@
  * limitations under the License.
  * 
  * A simple neural network with a single hidden layer.
+ *
+ * All neurons have an additional x_0=1 (actually, it's x_N) input, and the
+ * associated weight, which manifests itself in an additional row / element in
+ * the weight matrix / vector. This input models the noise in the data.
  */
 
 #include "ml/ml_model.h"
@@ -35,8 +39,6 @@
 #include <Eigen/Dense>
 
 #include "ml/neural_net_activation.h"
-
-// TODO: x_o = 1 input
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -94,6 +96,10 @@ private:
   WeightVector wy;
   /** Outputs of the hidden layer. Filled by score(), needed by update(). */
   mutable VectorXd outputs;
+
+  /** For better readability. */
+  WeightVector::Index hidden_neurons;
+  // TODO unsigned - signed conversion can cause problems
 
   friend class NeuralNetworkGradient;
   friend std::ostream& operator<<(std::ostream& os, const NeuralNetwork& nn);

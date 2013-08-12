@@ -28,6 +28,7 @@
 #include "ltr_common.hpp"
 #include "input_formats.hpp"
 #include "ranknet.hpp"
+#include "ranknet_lambda.hpp"
 #include "evaluation_measures.hpp"
 #include "ml/linear_regression.h"
 //#include "ml/neural_net.hpp"
@@ -56,6 +57,8 @@ LtrAlgorithm* get_algorithm(std::string name, MlModel* model,
                             EvaluationMeasure* eval) {
   if (name == "ranknet") {
     return new RankNet(model, eval);
+  } else if (name == "ranknet_lambda") {
+    return new RankNetLambda(model, eval);
   } else {
     return NULL;
   }

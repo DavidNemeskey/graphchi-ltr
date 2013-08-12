@@ -37,7 +37,7 @@ headers=$(wildcard *.h**)
 #all: $(patsubst %.cpp, %, $(wildcard *.cpp))
 all: ltr_main
 
-ltr_main: test.cpp input_readers.cpp ml/ml_model.cpp ml/linear_regression.cpp ml/neural_net.cpp ml/neural_net_activation.cpp $(headers)
+ltr_main: ltr_main.cpp input_readers.cpp ml/ml_model.cpp ml/linear_regression.cpp ml/neural_net.cpp ml/neural_net_activation.cpp $(headers)
 	$(CPP) $(CPPFLAGS) *.cpp ml/*.cpp -o $@ $(LINKFLAGS)
 
 #%: %.cpp $(headers)

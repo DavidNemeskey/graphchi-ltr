@@ -23,6 +23,11 @@
  * 
  * The RankNet algorithm, as described in Christopher J.C. Burges. From RankNet
  * to LambdaRank to LambdaMART: An Overview. 2010.
+ *
+ * @deprecated The compute_gradients() method computes the document scores for
+ *             each pair, which incurs a performance penalty. Use the new
+ *             RankNetLamba class that is free of this problem. This class is
+ *             here only for educational reasons.
  */
 
 #include <cmath>
@@ -61,7 +66,6 @@ public:
   }
 
   /** The derivative of C over s_i. */
-  // TODO: is this correct?
   double dC_per_ds_i(const double S_ij, const double s_i, const double s_j) {
     return sigma * ((0.5 - 0.5 * S_ij) - 1 / (1 + exp(sigma * (s_i - s_j))));
   }

@@ -55,9 +55,9 @@ int read_data(std::string file_name, std::string file_type, size_t& dimensions) 
 /** Instantiates the selected algorithm. */
 LtrAlgorithm* get_algorithm(std::string name, MlModel* model,
                             EvaluationMeasure* eval) {
-  if (name == "ranknet") {
+  if (name == "ranknet_old") {
     return new RankNet(model, eval);
-  } else if (name == "ranknet_lambda") {
+  } else if (name == "ranknet") {
     return new RankNetLambda(model, eval);
   } else {
     return NULL;

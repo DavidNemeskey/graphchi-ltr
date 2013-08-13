@@ -90,13 +90,8 @@ public:
         if (rel_i != rel_j) {
           double S_ij = rel_i > rel_j ? 1 : -1;
           double lambda_ij = dC_per_ds_i(S_ij, s_is[i], s_is[j]);
-          if (rel_i > rel_j) {
-            lambdas[i] += lambda_ij;
-            lambdas[j] -= lambda_ij;
-          } else {
-            lambdas[i] -= lambda_ij;
-            lambdas[j] += lambda_ij;
-          }
+          lambdas[i] += lambda_ij;
+          lambdas[j] -= lambda_ij;
 //          std::cout << "DOC " << query.outedge(i)->vertex_id() << "(" << rel_i <<
 //            ") vs " << query.outedge(j)->vertex_id() << "(" <<
 //            rel_j << "), S_ij: " << S_ij << " s_i: " << s_i << ", s_j: " <<

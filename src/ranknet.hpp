@@ -24,10 +24,8 @@
  * The RankNet algorithm, as described in Christopher J.C. Burges. From RankNet
  * to LambdaRank to LambdaMART: An Overview. 2010.
  *
- * @deprecated The compute_gradients() method computes the document scores for
- *             each pair, which incurs a performance penalty. Use the new
- *             RankNetLamba class that is free of this problem. This class is
- *             here only for educational reasons.
+ * @deprecated In order to remain faithful to the original paper, this class is
+ *             now deprecated. Use the new RankNetLamba class.
  */
 
 #include <cmath>

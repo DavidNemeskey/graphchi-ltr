@@ -1,5 +1,5 @@
-#ifndef DEF_RANKNET_LAMBDA_H
-#define DEF_RANKNET_LAMBDA_H
+#ifndef DEF_LAMBDARANK_H
+#define DEF_LAMBDARANK_H
 /**
  * @file
  * @author  David Nemeskey
@@ -21,31 +21,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * The sped-up RankNet algorithm, as described in Christopher J.C. Burges.
- * From RankNet to LambdaRank to LambdaMART: An Overview. 2010. In the paper, it
- * is adviced that this implementation is used for mini-batch learning, though I
- * don't think the arguments are valid in our case, since we are already doing
- * batch learning.
+ * The LambdaRank algorithm. Since it is very closely related to RankNet, we
+ * derive it from that class.
  */
 
 #include <cmath>
 
-#include "ltr_algorithm.hpp"
+#include "ranknet_lambda.hpp"
+#include "lambdarank_optimize.h"
 
-class RankNetLambda : public LtrAlgorithm {
+class LambdaRank : public RankNetLambda {
 public:
   /** @param[in] sigma parameter of the sigmoid. */
-  RankNetLambda(MlModel* model, EvaluationMeasure* eval,
-                LtrRunningPhase phase=TRAINING, double sigma=1)
-      : LtrAlgorithm(model, eval, phase), sigma(sigma) {
-  }
-
-  /**************************** Mathematics stuff *****************************/
-
-
-  /** The derivative of C over s_i. */
-  double dC_per_ds_i(const double S_ij, const double s_i, const double s_j) {
-    return sigma * ((0.5 - 0.5 * S_ij) - 1 / (1 + exp(sigma * (s_i - s_j))));
+  LambdaRank(MlModel* model, EvaluationMeasure* eval,
+             LtrRunningPhase phase=TRAINING, double sigma=1)
+      : RankNetLambda(model, eval, phase, sigme) {
   }
 
   /****************************** GraphChi stuff ******************************/
@@ -56,11 +46,13 @@ public:
     std::vector<double> lambdas(query.num_outedges());
     std::vector<double> s_is(query.num_outedges());
 
-    /* First, we compute all the outputs. */
+    /* First, we compute all the outputs... */
     for (int i = 0; i < query.num_outedges(); i++) {
       s_is[i] = get_score(query.outedge(i));
-
     }
+    /* ...and the retrieval measure scores. */
+    opt.compute(query);
+
 
     /* Now, we compute the errors (lambdas). */
     for (int i = 0; i < query.num_outedges() - 1; i++) {
@@ -69,7 +61,8 @@ public:
         int rel_j = get_relevance(query.outedge(j));
         if (rel_i != rel_j) {
           double S_ij = rel_i > rel_j ? 1 : -1;
-          double lambda_ij = dC_per_ds_i(S_ij, s_is[i], s_is[j]);
+          double lambda_ij = dC_per_ds_i(S_ij, s_is[i], s_is[j]) *
+                             opt.delta(query, i, j);
           /* lambda_ij = -lambda_ji */
           lambdas[i] += lambda_ij;
           lambdas[j] -= lambda_ij;
@@ -79,13 +72,17 @@ public:
 
     /* Finally, the model update. */
     for (int i = 0; i < query.num_outedges(); i++) {
-      umodel->update(query.outedge(i)->get_data().features, s_is[i], lambdas[i]);
+      // -lambdas[i], as C is a utility function in this case
+      umodel->update(query.outedge(i)->get_data().features, s_is[i], -lambdas[i]);
     }
   }
 
-protected:
-  /** The sigma parameter of the sigmoid. */
-  double sigma;
+private:
+  /**
+   * The information retrieval measure we are optimizing for.
+   * @todo add more measures.
+   */
+  NdcgOptimizer opt;
 };
 
 #endif

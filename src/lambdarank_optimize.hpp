@@ -48,18 +48,17 @@ public:
     }
     std::sort(ranked.begin(), ranked.end(), rel_comp);
 
-    std::cout << "RANKING for query " << v.get_data().id << ": ";
-
     double dcg = 0;
     for (size_t i = 0; i < ranked.size(); i++) {
-      std::cout << ranked[i].doc << "(" << ranked[i].relevance << "), ";
+//      std::cout << ranked[i].doc << "(" << ranked[i].relevance << "), ";
       //DYN dcg += (pow(2, best[i]->get(best[i]->size() - 2)) - 1) /
       dcg += (pow(2, ranked[i].relevance) - 1) /
              (log(i + 2) / log(2));
     }
-    std::cout << std::endl;
+//    std::cout << std::endl;
 
     idcg = dcg;
+//    std::cout << "iDCG == " << idcg << std::endl;
 
     /* Jeeebus, is there no better way? */
     std::sort(ranked.begin(), ranked.end(), score_comp);
@@ -67,10 +66,12 @@ public:
     std::map<double, int> ranking;
     for (int i = 0; i < v.num_outedges(); i++) {
       ranking[-v.outedge(i)->get_data().score] = i;
+//      std::cout << "ranking[" << -v.outedge(i)->get_data().score << "] = " << i << std::endl;
     }
     int rank = 0;
     for (std::map<double, int>::const_iterator it = ranking.begin();
          it != ranking.end(); ++it) {
+//      std::cout << "rank_map[" << it->second << "] = " << rank << std::endl;
       rank_map[it->second] = rank++;
     }
   }
@@ -83,6 +84,8 @@ public:
     double ret = 0;
     ret = -ndcg_at_i(v, i, rank_map[i]) - ndcg_at_i(v, j, rank_map[j]) +
            ndcg_at_i(v, i, rank_map[j]) + ndcg_at_i(v, j, rank_map[i]);
+//    std::cout << "Delta between " << i << " and " << j << " = " << ret
+//              << " / " << idcg << " == " << ret / idcg << std::endl;
     return ret / idcg;
   }
 
@@ -103,8 +106,13 @@ private:
    */
   double ndcg_at_i(graphchi_vertex<TypeVertex, FeatureEdge>& v, int i,
                    int rank) {
-    return (pow(2, v.outedge(i)->get_data().relevance) - 1) /
+    double ret = 
+           (pow(2, v.outedge(i)->get_data().relevance) - 1) /
            (log(rank + 2) / log(2));
+//    std::cout << "NDCG(i, rank): rel=" << v.outedge(i)->get_data().relevance
+//              << ", i=" << i << ", rank=" << rank << " => nDCG = " << ret
+//              << std::endl;
+    return ret;
   }
   /** Stores the ideal DCG for the query. Required to compute nDCG. */
   double idcg;

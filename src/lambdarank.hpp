@@ -35,7 +35,7 @@ public:
   /** @param[in] sigma parameter of the sigmoid. */
   LambdaRank(MlModel* model, EvaluationMeasure* eval,
              LtrRunningPhase phase=TRAINING, double sigma=1)
-      : RankNetLambda(model, eval, phase, sigme) {
+      : RankNetLambda(model, eval, phase, sigma) {
   }
 
   /****************************** GraphChi stuff ******************************/

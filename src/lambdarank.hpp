@@ -28,7 +28,7 @@
 #include <cmath>
 
 #include "ranknet_lambda.hpp"
-#include "lambdarank_optimize.h"
+#include "lambdarank_optimize.hpp"
 
 class LambdaRank : public RankNetLambda {
 public:

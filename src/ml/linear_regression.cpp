@@ -24,12 +24,13 @@
 
 #include "linear_regression.h"
 #include <iostream>
+#include "ml/learning_rate.h"
 //#include <iterator>
 
 using Eigen::Map;
 
 LinearRegression::LinearRegression(
-    size_t dimensions, double learning_rate)
+    size_t dimensions, LearningRate* learning_rate)
   : MlModel(dimensions, learning_rate) {
   weights = VectorXd::Constant(dimensions + 1, 1);
 }
@@ -56,8 +57,8 @@ void LinearRegressionGradient::reset() {
 
 void LinearRegressionGradient::update(double* const& features, double output, double mult) {
   gradients.head(parent.dimensions) +=
-      Map<VectorXd>(features, parent.dimensions) * mult * parent.learning_rate;
-  gradients[parent.dimensions] += parent.learning_rate * mult;
+      Map<VectorXd>(features, parent.dimensions) * mult * parent.learning_rate->get();
+  gradients[parent.dimensions] += parent.learning_rate->get() * mult;
 }
 
 void LinearRegressionGradient::update_parent() {

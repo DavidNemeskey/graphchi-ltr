@@ -31,6 +31,7 @@
 #include "ranknet_lambda.hpp"
 #include "lambdarank.hpp"
 #include "evaluation_measures.hpp"
+#include "ml/learning_rate.h"
 #include "ml/linear_regression.h"
 //#include "ml/neural_net.hpp"
 
@@ -68,9 +69,9 @@ LtrAlgorithm* get_algorithm(std::string name, MlModel* model,
 }
 
 /** Instantiates the ML model. */
-MlModel* get_ml_model(std::string name, size_t dimensions) {
+MlModel* get_ml_model(std::string name, size_t dimensions, LearningRate* lr) {
     if (name == "linreg") {
-        return new LinearRegression(dimensions);
+        return new LinearRegression(dimensions, lr);
 //    } else if (name == "nn") {
 //        return new NeuralNetwork(dimensions, /* TODO*/ 8);
     } else {
@@ -104,7 +105,6 @@ int main(int argc, const char ** argv) {
   std::string test_data = get_option_string("test_data", "");
   int niters            = get_option_int("niters", 10);
   int cutoff            = get_option_int("cutoff", 20);
-  int learning_rate     = get_option_int("lrate", 20);
   // TODO: make it overridable by --D?
   size_t dimensions     = 0;
   bool scheduler        = false;  // No scheduler is needed
@@ -112,6 +112,7 @@ int main(int argc, const char ** argv) {
   std::string error_metric = get_option_string("error", "ndcg");
   std::string model_name     = get_option_string("mlmodel", "linreg");
   std::string algorithm_name = get_option_string("algorithm", "ranknet");
+  std::string learning_rate  = get_option_string("learning_rate", "");
 
   /* Read the data file. */
   int train_nshards = read_data(train_data, reader, dimensions);
@@ -120,8 +121,9 @@ int main(int argc, const char ** argv) {
                             "Select one of csv, letor." << std::endl;
   }
 
+  LearningRate* lr_obj = create_learning_rate_function(learning_rate);
   /* Instantiate the algorithm. */
-  MlModel* model = get_ml_model(model_name, dimensions);
+  MlModel* model = get_ml_model(model_name, dimensions, lr_obj);
   if (model == NULL) {
     logstream(LOG_FATAL) << "Model " << model_name <<
                             " is not implemented; select one of " <<

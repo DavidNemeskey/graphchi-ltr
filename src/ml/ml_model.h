@@ -25,6 +25,7 @@
  */
 #include <cstddef>  // size_t
 
+class LearningRate;
 class Gradient;
 
 class MlModel {
@@ -33,7 +34,15 @@ protected:
   MlModel();
 
 public:
-  MlModel(size_t dimensions, double learning_rate=0.001);
+  virtual ~MlModel();
+
+  /**
+   * Constructor.
+   * @param dimensions the number of dimensions of the data.
+   * @param learning_rate the learning rate strategy. If @c NULL, a constant
+   *        learning rate of 0.9 is used.
+   */
+  MlModel(size_t dimensions, LearningRate* learning_rate=NULL);
   // TODO: argument type to template? parameter
   /**
    * Returns the score for an item with features @p features. 
@@ -50,8 +59,8 @@ public:
 protected:
   /** Dimensions of the feature vector. */
   size_t dimensions;
-  /** The learning rate. */
-  double learning_rate;
+  /** The learning rate function. */
+  LearningRate* learning_rate;
 };
 
 /**

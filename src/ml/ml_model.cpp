@@ -22,8 +22,17 @@
  * This file contains the root classes of the machine learning model hierarchy.
  */
 
-#include "ml_model.h"
+#include "ml/ml_model.h"
+#include "ml/learning_rate.h"
 
-MlModel::MlModel(size_t dimensions, double learning_rate)
-  : dimensions(dimensions), learning_rate(learning_rate) {}
+MlModel::MlModel(size_t dimensions, LearningRate* learning_rate)
+  : dimensions(dimensions), learning_rate(learning_rate) {
+  if (learning_rate == NULL) {
+    learning_rate = new ConstantLearningRate(0.9);
+  }
+}
+
+MlModel::~MlModel() {
+  delete learning_rate;
+}
 

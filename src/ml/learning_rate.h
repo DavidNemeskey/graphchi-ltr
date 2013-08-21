@@ -28,6 +28,8 @@
  *          options (e.g. -std=c++0x or -std=c++11 for GCC).
  */
 
+// TODO: Composite: delete
+
 #include <stdexcept>
 #include <vector>
 #include <string>

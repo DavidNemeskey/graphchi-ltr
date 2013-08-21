@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iterator>
 #include <functional>
+#include "ml/learning_rate.h"
 
 using Eigen::Map;
 using Eigen::RowVectorXd;
@@ -24,7 +25,7 @@ void print_vec(const std::string& s, const VectorXd& v) {
 };
 
 NeuralNetwork::NeuralNetwork(size_t dimensions, size_t hidden_neurons,
-                             double learning_rate, Activation* act_fn)
+                             LearningRate* learning_rate, Activation* act_fn)
     : MlModel(dimensions, learning_rate), hidden_neurons(hidden_neurons) {
   initialize_weights(hidden_neurons);
   outputs = VectorXd::Zero(hidden_neurons);
@@ -120,11 +121,11 @@ void NeuralNetworkGradient::update(double* const& features,
   //double deltay = y * (1 - y);
   double deltay = parent.afn->deriv()(y);
 //  std::cout << "deltay == " << deltay << std::endl;
-  double plmdy = parent.learning_rate * mult * deltay;
+  double plmdy = parent.learning_rate->get() * mult * deltay;
 
   gradientsy.head(parent.hidden_neurons) += plmdy * outputs;
   gradientsy(parent.hidden_neurons) += plmdy;  // noise
-//  std::cout << "Updating wy -= " << parent.learning_rate << " * " << mult
+//  std::cout << "Updating wy -= " << parent.learning_rate->get() << " * " << mult
 //            << " * " << deltay << " * outputs" << std::endl;
 //  print_vec("Gradientsy:", gradientsy);
 
@@ -135,12 +136,12 @@ void NeuralNetworkGradient::update(double* const& features,
   VectorXd deltah_wy = (parent.wy.head(parent.hidden_neurons).array() * deltah.array());
 //  print_vec("parent.wy:", parent.wy);
 //  print_vec("deltah_wy:", deltah_wy);
-//  std::cout << "Updating neurons with lr " << parent.learning_rate
+//  std::cout << "Updating neurons with lr " << parent.learning_rate->get()
 //            << " * deltay " << deltay << " * mult " << mult << std::endl;
   gradients1.topRows(gradients1.rows() - 1) += plmdy *
                 Map<VectorXd>(features, parent.dimensions) * deltah_wy.transpose();
   gradients1.bottomRows(1) += plmdy * deltah_wy.transpose();  // noise
-//  std::cout << "delta gradients1: " << std::endl << parent.learning_rate * mult * deltay * Map<VectorXd>(features, parent.dimensions) * deltah_wy.transpose() << std::endl;
+//  std::cout << "delta gradients1: " << std::endl << parent.learning_rate->get() * mult * deltay * Map<VectorXd>(features, parent.dimensions) * deltah_wy.transpose() << std::endl;
 //  std::cout << "gradients1: " << std::endl << gradients1 << std::endl;
 }
 

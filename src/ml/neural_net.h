@@ -67,7 +67,7 @@ public:
    *                    <tt>Sigma(1)</tt>).
    */
   NeuralNetwork(size_t dimensions, size_t hidden_neurons,
-                double learning_rate=0.0001, Activation* act_fn=NULL);
+                LearningRate* learning_rate=NULL, Activation* act_fn=NULL);
 
   inline double score(double* const& features) const;
 

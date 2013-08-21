@@ -38,7 +38,7 @@ using Eigen::VectorXd;
  */
 class LinearRegression : public MlModel {
 public:
-  LinearRegression(size_t dimensions, double learning_rate=0.001);
+  LinearRegression(size_t dimensions, LearningRate* learning_rate=NULL);
 
   Gradient* get_gradient_object();
 

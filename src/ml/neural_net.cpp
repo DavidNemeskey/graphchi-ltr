@@ -32,6 +32,18 @@ NeuralNetwork::NeuralNetwork(size_t dimensions, size_t hidden_neurons,
   afn.reset(act_fn != NULL ? act_fn : new Sigma(1));
 }
 
+NeuralNetwork::NeuralNetwork(NeuralNetwork& orig) : MlModel(orig) {
+  afn.reset(orig.afn->clone());
+  w1 = orig.w1;
+  wy = orig.wy;
+  outputs = orig.outputs;
+  hidden_neurons = orig.hidden_neurons;
+}
+
+NeuralNetwork* NeuralNetwork::clone() {
+  return new NeuralNetwork(*this);
+}
+
 double NeuralNetwork::score(double* const& features) const {
   return score_inner(features, outputs);
 }

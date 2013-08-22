@@ -25,12 +25,15 @@
 #include "ml/ml_model.h"
 #include "ml/learning_rate.h"
 
-MlModel::MlModel(size_t dimensions, LearningRate* learning_rate)
-  : dimensions(dimensions), learning_rate(learning_rate) {
+MlModel::MlModel(size_t dimensions_, LearningRate* learning_rate_)
+  : dimensions(dimensions_), learning_rate(learning_rate_) {
   if (learning_rate == NULL) {
     learning_rate = new ConstantLearningRate(0.9);
   }
 }
+
+MlModel::MlModel(MlModel& orig)
+  : dimensions(orig.dimensions), learning_rate(orig.learning_rate->clone()) {}
 
 MlModel::~MlModel() {
   delete learning_rate;

@@ -31,7 +31,9 @@ class Gradient;
 class MlModel {
 protected:
   /** Default constructor; do not use. */
-  MlModel();
+//  MlModel();
+  /** Copy constructor. */
+  MlModel(MlModel& orig);
 
 public:
   virtual ~MlModel();
@@ -55,6 +57,12 @@ public:
    * updates.
    */
   virtual Gradient* get_gradient_object()=0;
+
+  /**
+   * Clones the model. Subclasses must implement it so that it calls the copy
+   * constructor of the subclass in question.
+   */
+  virtual MlModel* clone()=0;
 
 protected:
   /** Dimensions of the feature vector. */

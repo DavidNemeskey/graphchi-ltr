@@ -60,6 +60,9 @@ typedef VectorXd WeightVector;
  * @todo regularization!
  */
 class NeuralNetwork : public MlModel {
+protected:
+  NeuralNetwork(NeuralNetwork& orig);
+
 public:
   /**
    * @param[in] hidden_neurons the number of neurons in the hidden layer.
@@ -68,6 +71,8 @@ public:
    */
   NeuralNetwork(size_t dimensions, size_t hidden_neurons,
                 LearningRate* learning_rate=NULL, Activation* act_fn=NULL);
+
+  NeuralNetwork* clone();
 
   inline double score(double* const& features) const;
 
@@ -84,7 +89,7 @@ private:
   /** Initializes the individual weights to random numbers between 0.1 and 1. */
   void initialize_weights(size_t hidden_neurons);
 
-private:
+public:
   /** The activation function. */
   std::auto_ptr<Activation> afn;
   /**

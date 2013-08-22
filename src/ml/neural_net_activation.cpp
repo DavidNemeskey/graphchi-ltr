@@ -8,12 +8,19 @@ ActivationDeriv::ActivationDeriv(const Activation& parent) : parent_(parent) {}
 Activation::Activation() : act_(new ActivationAct(*this)),
                            deriv_(new ActivationDeriv(*this)) {}
 
+Activation::Activation(Activation& orig) : act_(new ActivationAct(*this)),
+                                           deriv_(new ActivationDeriv(*this)) {}
+
 Activation::~Activation() {
   delete act_;
   delete deriv_;
 }
 
 Sigma::Sigma(double K) : K(K) {}
+
+Sigma* Sigma::clone() {
+  return new Sigma(*this);
+}
 
 double Sigma::activation(double x) const {
   return 1 / (1 + exp(-K * x));

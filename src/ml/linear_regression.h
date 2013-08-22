@@ -37,8 +37,13 @@ using Eigen::VectorXd;
  * @todo use Eigen vectors
  */
 class LinearRegression : public MlModel {
+protected:
+  LinearRegression(LinearRegression& orig);
+
 public:
   LinearRegression(size_t dimensions, LearningRate* learning_rate=NULL);
+
+  LinearRegression* clone();
 
   Gradient* get_gradient_object();
 

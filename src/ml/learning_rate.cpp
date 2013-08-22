@@ -17,6 +17,10 @@ ConstantLearningRate::ConstantLearningRate(double learning_rate_)
   }
 }
 
+ConstantLearningRate* ConstantLearningRate::clone() {
+  return new ConstantLearningRate(*this);
+}
+
 LinearLearningRate::LinearLearningRate(double starting_value_, double decrease_,
                                        double ending_value_)
     throw (std::invalid_argument) : LearningRate(starting_value_),
@@ -33,6 +37,10 @@ LinearLearningRate::LinearLearningRate(double starting_value_, double decrease_,
     throw (std::invalid_argument(
           "ending_value must be less than starting_value"));
   }
+}
+
+LinearLearningRate* LinearLearningRate::clone() {
+  return new LinearLearningRate(*this);
 }
 
 bool LinearLearningRate::advance() {
@@ -57,6 +65,18 @@ CompositeLearningRate::CompositeLearningRate(std::vector<LearningRate*> parts_)
     throw (std::invalid_argument("no valid learning rate functions specified"));
   }
   learning_rate = parts[index]->get();
+}
+
+CompositeLearningRate::CompositeLearningRate(CompositeLearningRate& orig)
+    : LearningRate(orig), index(orig.index) {
+  parts.resize(orig.parts.size());
+  for (size_t i = 0; i < parts.size(); i++) {
+    parts[i] = orig.parts[i]->clone();
+  }
+}
+
+CompositeLearningRate* CompositeLearningRate::clone() {
+  return new CompositeLearningRate(*this);
 }
 
 bool CompositeLearningRate::advance() {

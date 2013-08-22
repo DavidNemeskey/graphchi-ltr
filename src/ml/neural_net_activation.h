@@ -38,6 +38,9 @@ class ActivationDeriv;
  * <tt>derivative()</tt> methods. 
  */
 class Activation {
+protected:
+  Activation(Activation& orig);
+
 public:
   Activation();
   virtual ~Activation();
@@ -59,6 +62,12 @@ public:
    * activation function.
    */
   inline const ActivationDeriv& deriv() const { return *deriv_; }
+
+  /**
+   * Clones the activation function. Subclasses must implement it so that it
+   * calls the copy constructor of the subclass in question.
+   */
+  virtual Activation* clone()=0;
 
 private:
   /** The object, whose <tt>operator()</tt> is the activation function. */
@@ -96,6 +105,8 @@ public:
 
   /** The inverse of the sigma (logistic) function: the logit function. */
   double logit(double x) const;
+
+  Sigma* clone();
 
 private:
   /** Parameter for @c sigma. */

@@ -55,6 +55,12 @@ public:
   /** Resets the object to its starting state. */
   virtual void reset()=0;
 
+  /**
+   * Clones the model. Subclasses must implement it so that it calls the copy
+   * constructor of the subclass in question.
+   */
+  virtual LearningRate* clone()=0;
+
 protected:
   /** The current value of the learning rate function. */
   double learning_rate;
@@ -68,6 +74,7 @@ public:
 
   inline bool advance() { return true; }
   inline void reset() {};
+  ConstantLearningRate* clone();
 };
 
 /** Linearly decreasing learning rate in an interval. */
@@ -88,6 +95,7 @@ public:
 
   bool advance();
   void reset();
+  LinearLearningRate* clone();
 
 private:
   /** The start point of the interval. */
@@ -104,6 +112,9 @@ private:
  * and so on.
  */
 class CompositeLearningRate : public LearningRate {
+protected:
+  CompositeLearningRate(CompositeLearningRate& orig);
+
 public:
   /**
    * Constructor.
@@ -116,6 +127,7 @@ public:
 
   bool advance();
   void reset();
+  CompositeLearningRate* clone();
 
 private:
   /** The strategies we iterate through. */

@@ -35,6 +35,10 @@ LinearRegression::LinearRegression(
   weights = VectorXd::Constant(dimensions + 1, 1);
 }
 
+LinearRegression::LinearRegression(LinearRegression& orig) : MlModel(orig) {
+  weights = orig.weights;
+}
+
 Gradient* LinearRegression::get_gradient_object() {
   return new LinearRegressionGradient(*this);
 }
@@ -44,6 +48,10 @@ double LinearRegression::score(double* const& features) const {
                  weights.head(dimensions);
   score += weights[dimensions];
   return score;
+}
+
+LinearRegression* LinearRegression::clone() {
+  return new LinearRegression(*this);
 }
 
 LinearRegressionGradient::LinearRegressionGradient(LinearRegression& parent)

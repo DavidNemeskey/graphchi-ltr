@@ -36,3 +36,10 @@ MlModel::~MlModel() {
   delete learning_rate;
 }
 
+Gradient::Gradient(MlModel& parent_) : parent(parent_) {}
+
+void Gradient::update_parent() {
+  __update_parent();
+  parent.learning_rate->advance();
+}
+

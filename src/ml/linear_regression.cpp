@@ -47,21 +47,23 @@ double LinearRegression::score(double* const& features) const {
 }
 
 LinearRegressionGradient::LinearRegressionGradient(LinearRegression& parent)
-    : parent(parent) {
+    : Gradient(parent) {
   reset();
 }
 
 void LinearRegressionGradient::reset() {
-  gradients = VectorXd::Constant(parent.dimensions + 1, 0);
+  gradients = VectorXd::Constant(
+      static_cast<LinearRegression&>(parent).dimensions + 1, 0);
 }
 
 void LinearRegressionGradient::update(double* const& features, double output, double mult) {
-  gradients.head(parent.dimensions) +=
-      Map<VectorXd>(features, parent.dimensions) * mult * parent.learning_rate->get();
-  gradients[parent.dimensions] += parent.learning_rate->get() * mult;
+  LinearRegression& p = static_cast<LinearRegression&>(parent);
+  gradients.head(p.dimensions) +=
+      Map<VectorXd>(features, p.dimensions) * mult * p.learning_rate->get();
+  gradients[p.dimensions] += p.learning_rate->get() * mult;
 }
 
-void LinearRegressionGradient::update_parent() {
+void LinearRegressionGradient::__update_parent() {
   std::cout << "LINREG_UPDATE_PARENT";
   for (VectorXd::Index i = 0; i < gradients.size(); i++) {
     std::cout << gradients[i] << " ";
@@ -69,6 +71,6 @@ void LinearRegressionGradient::update_parent() {
 //  std::copy(gradients.begin(), gradients.end(),
 //            std::ostream_iterator<double>(std::cout, " "));
   std::cout << std::endl;
-  parent.weights -= gradients;
+  static_cast<LinearRegression&>(parent).weights -= gradients;
 }
 

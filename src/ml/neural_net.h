@@ -116,12 +116,11 @@ public:
 
   void update(double* const& features, double y, double mult=1);
 
+protected:
   /** Updates the parent with the gradients. */
-  void update_parent();
+  void __update_parent();
 
 private:
-  /** Reference to the parent. */
-  NeuralNetwork& parent;
   /**
    * The outputs of the first layer. Needed as we need to run our parent's
    * score method to compute all gradients.

@@ -91,7 +91,7 @@ std::ostream& operator<<(std::ostream& os, const NeuralNetwork& nn) {
 }
 
 NeuralNetworkGradient::NeuralNetworkGradient(NeuralNetwork& parent)
-    : parent(parent) {
+    : Gradient(parent) {
   outputs.resize(parent.outputs.size());
   gradients1.resize(parent.w1.rows(), parent.w1.cols());
   gradientsy.resize(parent.wy.size());
@@ -105,8 +105,9 @@ void NeuralNetworkGradient::reset() {
 
 void NeuralNetworkGradient::update(double* const& features,
                                    double y, double mult) {
+  NeuralNetwork& p = static_cast<NeuralNetwork&>(parent);
   /* Have to run score() again to fill up the outputs vector... */
-  parent.score_inner(features, outputs);
+  p.score_inner(features, outputs);
 
 //  std::cout << "updating " << features[0] << ", " << features[1] << ", " << features[2] << "..." << std::endl;
 //  std::cout << "Outputs ";
@@ -119,34 +120,35 @@ void NeuralNetworkGradient::update(double* const& features,
 
   /* First, let's update the output layer. */
   //double deltay = y * (1 - y);
-  double deltay = parent.afn->deriv()(y);
+  double deltay = p.afn->deriv()(y);
 //  std::cout << "deltay == " << deltay << std::endl;
-  double plmdy = parent.learning_rate->get() * mult * deltay;
+  double plmdy = p.learning_rate->get() * mult * deltay;
 
-  gradientsy.head(parent.hidden_neurons) += plmdy * outputs;
-  gradientsy(parent.hidden_neurons) += plmdy;  // noise
-//  std::cout << "Updating wy -= " << parent.learning_rate->get() << " * " << mult
+  gradientsy.head(p.hidden_neurons) += plmdy * outputs;
+  gradientsy(p.hidden_neurons) += plmdy;  // noise
+//  std::cout << "Updating wy -= " << p.learning_rate->get() << " * " << mult
 //            << " * " << deltay << " * outputs" << std::endl;
 //  print_vec("Gradientsy:", gradientsy);
 
   //VectorXd deltah = (outputs.array() * (1 - outputs.array())).matrix();
-  VectorXd deltah = outputs.unaryExpr(parent.afn->deriv());
+  VectorXd deltah = outputs.unaryExpr(p.afn->deriv());
 //  print_vec("deltah:", deltah);
   /* y'(1) * w(2) -- shouldn't be matched like this, not readable */
-  VectorXd deltah_wy = (parent.wy.head(parent.hidden_neurons).array() * deltah.array());
-//  print_vec("parent.wy:", parent.wy);
+  VectorXd deltah_wy = (p.wy.head(p.hidden_neurons).array() * deltah.array());
+//  print_vec("p.wy:", p.wy);
 //  print_vec("deltah_wy:", deltah_wy);
-//  std::cout << "Updating neurons with lr " << parent.learning_rate->get()
+//  std::cout << "Updating neurons with lr " << p.learning_rate->get()
 //            << " * deltay " << deltay << " * mult " << mult << std::endl;
   gradients1.topRows(gradients1.rows() - 1) += plmdy *
-                Map<VectorXd>(features, parent.dimensions) * deltah_wy.transpose();
+                Map<VectorXd>(features, p.dimensions) * deltah_wy.transpose();
   gradients1.bottomRows(1) += plmdy * deltah_wy.transpose();  // noise
-//  std::cout << "delta gradients1: " << std::endl << parent.learning_rate->get() * mult * deltay * Map<VectorXd>(features, parent.dimensions) * deltah_wy.transpose() << std::endl;
+//  std::cout << "delta gradients1: " << std::endl << p.learning_rate->get() * mult * deltay * Map<VectorXd>(features, p.dimensions) * deltah_wy.transpose() << std::endl;
 //  std::cout << "gradients1: " << std::endl << gradients1 << std::endl;
 }
 
-void NeuralNetworkGradient::update_parent() {
-  parent.w1 -= gradients1;
-  parent.wy -= gradientsy;
+void NeuralNetworkGradient::__update_parent() {
+  NeuralNetwork& p = static_cast<NeuralNetwork&>(parent);
+  p.w1 -= gradients1;
+  p.wy -= gradientsy;
 }
 

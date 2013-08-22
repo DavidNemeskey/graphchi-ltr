@@ -61,6 +61,8 @@ protected:
   size_t dimensions;
   /** The learning rate function. */
   LearningRate* learning_rate;
+
+  friend class Gradient;
 };
 
 /**
@@ -72,6 +74,8 @@ protected:
  */
 class Gradient {
 public:
+  Gradient(MlModel& parent);
+
   /** Resets the weights to 0. */
   virtual void reset()=0;
 
@@ -86,8 +90,15 @@ public:
    */
   virtual void update(double* const& features, double output, double mult=1)=0;
 
-  /** Updates the parent. */
-  virtual void update_parent()=0;
+  /** Updates the parent and advances the learning rate function. */
+  void update_parent();
+
+protected:
+  /** Updates the parent -- subclasses must implement this method. */
+  virtual void __update_parent()=0;
+
+  /** Reference to the parent. */
+  MlModel& parent;
 };
 
 // TODO: learning_rate to class!

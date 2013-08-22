@@ -61,12 +61,11 @@ public:
   /** Computes the gradients. */
   void update(double* const& features, double output, double mult=1);
 
+protected:
   /** Updates the parent with the gradients. */
-  void update_parent();
+  void __update_parent();
 
 private:
-  /** Reference to the parent. */
-  LinearRegression& parent;
   /** The gradients. */
   VectorXd gradients;
 };

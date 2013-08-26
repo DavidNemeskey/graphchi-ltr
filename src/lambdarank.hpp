@@ -34,8 +34,9 @@ class LambdaRank : public RankNetLambda {
 public:
   /** @param[in] sigma parameter of the sigmoid. */
   LambdaRank(MlModel* model, EvaluationMeasure* eval,
-             LtrRunningPhase phase=TRAINING, double sigma=1)
-      : RankNetLambda(model, eval, phase, sigma) {
+             StoppingCondition stop, LtrRunningPhase phase=TRAINING,
+             double sigma=1)
+      : RankNetLambda(model, eval, stop, phase, sigma) {
   }
 
   /****************************** GraphChi stuff ******************************/

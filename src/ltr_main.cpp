@@ -56,13 +56,13 @@ int read_data(std::string file_name, std::string file_type, size_t& dimensions) 
 
 /** Instantiates the selected algorithm. */
 LtrAlgorithm* get_algorithm(std::string name, MlModel* model,
-                            EvaluationMeasure* eval) {
+                            EvaluationMeasure* eval, StoppingCondition stop) {
   if (name == "ranknet_old") {
-    return new RankNet(model, eval);
+    return new RankNet(model, eval, stop);
   } else if (name == "ranknet") {
-    return new RankNetLambda(model, eval);
+    return new RankNetLambda(model, eval, stop);
   } else if (name == "lambdarank") {
-    return new LambdaRank(model, eval);
+    return new LambdaRank(model, eval, stop);
   } else {
     return NULL;
   }
@@ -113,6 +113,8 @@ int main(int argc, const char ** argv) {
   std::string model_name     = get_option_string("mlmodel", "linreg");
   std::string algorithm_name = get_option_string("algorithm", "ranknet");
   std::string learning_rate  = get_option_string("learning_rate", "");
+  StoppingCondition stopping_condition =
+      static_cast<StoppingCondition>(get_option_int("stopping_condition", 0));
 
   /* Read the data file. */
   int train_nshards = read_data(train_data, reader, dimensions);
@@ -135,7 +137,8 @@ int main(int argc, const char ** argv) {
                             " is not implemented; select one of " <<
                             "ndcg, err, map." << std::endl;
   }
-  LtrAlgorithm* algorithm = get_algorithm(algorithm_name, model, eval);
+  LtrAlgorithm* algorithm = get_algorithm(algorithm_name, model,
+                                          eval, stopping_condition);
   if (algorithm == NULL) {
     logstream(LOG_FATAL) << "Algorithm " << algorithm_name <<
                             " is not implemented; select one of " <<
@@ -171,7 +174,7 @@ int main(int argc, const char ** argv) {
       logstream(LOG_FATAL) << "Reader " << reader << " is not implemented. " <<
                               "Select one of csv, letor." << std::endl;
     }
-    algorithm->set_phase(VALIDATION);
+    algorithm->set_phase(TESTING);
     metrics m_test("ltr_test");
     graphchi_engine<TypeVertex, FeatureEdge> engine(
         test_data, test_nshards, scheduler, m_test); 

@@ -29,6 +29,7 @@
 #include <iomanip>
 #include <map>
 #include <vector>
+#include <memory>    // auto_ptr
 
 #include "ltr_common.hpp"
 //#include "util/pthread_tools.hpp"  // mutex
@@ -40,7 +41,22 @@
 enum LtrRunningPhase {
   TRAINING,
   VALIDATION,
-  TESTING
+  TESTING,
+  APPLICATION
+};
+
+/**
+ * Stopping condition:
+ *   0: nothing, training runs until niters iterations
+ *   1: training runs until the evaluation measure stops improving on the
+ *      training set.
+ *   2: training runs until the evaluation measure stops improving on the
+ *      validation set.
+ */
+enum StoppingCondition {
+  DONT_STOP,
+  STOP_TRAINING,
+  STOP_VALIDATION
 };
 
 class LtrAlgorithm : public GraphChiProgram<TypeVertex, FeatureEdge> {
@@ -51,8 +67,11 @@ public:
    * @param[in] phase which phase of the algorithm to run.
    */
   LtrAlgorithm(MlModel* model, EvaluationMeasure* eval,
-               LtrRunningPhase phase=TRAINING)
-      : model(model), eval(eval), phase(phase) {
+               StoppingCondition stop, LtrRunningPhase phase=TRAINING)
+      : model(model), eval(eval), stop(stop), phase(phase),
+        last_eval_value(0)
+  {
+    last_model.reset(NULL);
   }
 
   ~LtrAlgorithm() {
@@ -80,7 +99,7 @@ public:
    * execution threads, so that the model update can be parallel.
    */
   void before_iteration(int iteration, graphchi_context &ginfo) {
-    if (phase == TRAINING || phase == VALIDATION) {
+    if (phase == TRAINING || phase == VALIDATION || phase == TESTING) {
       eval->before_iteration(iteration, ginfo);
     }
     for (int i = 0; i < ginfo.execthreads; i++) {
@@ -113,7 +132,7 @@ public:
       if (phase == TRAINING) {
         compute_gradients(v, parallel_models[omp_get_thread_num()]);
       }
-      if (phase == TRAINING || phase == VALIDATION) {
+      if (phase == TRAINING || phase == VALIDATION || phase == TESTING) {
         evaluate_model(v, ginfo);
       }
     }
@@ -137,7 +156,7 @@ public:
 //              std::ostream_iterator<double>(std::cout, " "));
 //    std::cout << std::endl;
 
-    if (phase == TRAINING || phase == VALIDATION) {
+    if (phase == TRAINING || phase == VALIDATION || phase == TESTING) {
       eval->after_iteration(iteration, ginfo);
 
       // Debugging stuff; remove if not needed anymore.
@@ -151,6 +170,21 @@ public:
       }
 //      std::copy(eval->eval.begin(), eval->eval.end(), std::ostream_iterator<double>(std::cout, " "));
       std::cout << ", avg: " << eval->avg_eval << std::endl << std::endl;
+    }
+
+    /** Stop if the evaluation results get worse. */
+    if (stop == STOP_TRAINING) {
+      if (phase == TRAINING) {
+        if (eval->avg_eval < last_eval_value) {
+          if (last_model.get() != NULL) {
+            model = last_model.release();
+          }
+          ginfo.set_last_iteration(ginfo.iteration);
+        } else {
+          last_eval_value = eval->avg_eval;
+          last_model.reset(model->clone());
+        }
+      }
     }
   }
 
@@ -200,6 +234,8 @@ protected:
   MlModel* model;
   /** The evaluation measure. */
   EvaluationMeasure* eval;
+  /** The stopping condition. */
+  StoppingCondition stop;
   /** Which phase to run? */
   LtrRunningPhase phase;
   /**
@@ -208,6 +244,18 @@ protected:
    * @see model
    */
   std::vector<Gradient*> parallel_models;
+
+  /**
+   * The value of the evaluation measure in the last iteration. Used as a
+   * stopping condition: if the measure becomes worse in an iteration, the
+   * learning process stops.
+   */
+  double last_eval_value;
+  /**
+   * Backup of the ML model from the last iteration. If we stop because the
+   * evaluation measure gets worse, we need to return the backed up model.
+   */
+  std::auto_ptr<MlModel> last_model;
 };
 
 #endif

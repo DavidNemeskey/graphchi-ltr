@@ -36,8 +36,9 @@ class RankNetLambda : public LtrAlgorithm {
 public:
   /** @param[in] sigma parameter of the sigmoid. */
   RankNetLambda(MlModel* model, EvaluationMeasure* eval,
-                LtrRunningPhase phase=TRAINING, double sigma=1)
-      : LtrAlgorithm(model, eval, phase), sigma(sigma) {
+                StoppingCondition stop, LtrRunningPhase phase=TRAINING,
+                double sigma=1)
+      : LtrAlgorithm(model, eval, stop, phase), sigma(sigma) {
   }
 
   /**************************** Mathematics stuff *****************************/

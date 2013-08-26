@@ -67,7 +67,7 @@ public:
     }
     avg_eval /= eval.size();
 //    avg_eval = std::accumulate(eval.begin(), eval.end(), 0.0) / eval.size();
-    std::cout << "EVAL ITERATION: " << iteration << std::endl;
+//    std::cout << "EVAL ITERATION: " << iteration << std::endl;
   }
 
 protected:
@@ -155,16 +155,16 @@ public:
   double compute_dcg(graphchi_vertex<TypeVertex, FeatureEdge> &v,
                      bool (*comp)(FeatureEdge&, FeatureEdge&)) {
     std::vector<FeatureEdge> best = get_best(v, comp);
-    std::cout << "RANKING for query " << v.get_data().id << ": ";
+//    std::cout << "RANKING for query " << v.get_data().id << ": ";
 
     double dcg = 0;
     for (size_t i = 0; i < best.size(); i++) {
-      std::cout << best[i].doc << "(" << best[i].relevance << "), ";
+//      std::cout << best[i].doc << "(" << best[i].relevance << "), ";
       //DYN dcg += (pow(2, best[i]->get(best[i]->size() - 2)) - 1) /
       dcg += (pow(2, best[i].relevance) - 1) /
              (log(i + 2) / log(2));
     }
-    std::cout << std::endl;
+//    std::cout << std::endl;
 
     return dcg;
   }
@@ -175,12 +175,12 @@ public:
     if (gcontext.iteration == 0) {
       // TODO: mutex!
       idcgs[v.id()] = compute_dcg(v, EvaluationMeasure::rel_comp);
-      std::cout << "IDCG[" << v.id() << "] = " << idcgs[v.id()] << std::endl;
+//      std::cout << "IDCG[" << v.id() << "] = " << idcgs[v.id()] << std::endl;
     }
     double dcg = compute_dcg(v, EvaluationMeasure::score_comp);
     eval[v.id()] = dcg / idcgs[v.id()];
-    std::cout << "NDCG[" << v.get_data().id << "] = " << dcg << " / " << idcgs[v.id()]
-              << " = " << eval[v.id()] << std::endl;
+//    std::cout << "NDCG[" << v.get_data().id << "] = " << dcg << " / " << idcgs[v.id()]
+//              << " = " << eval[v.id()] << std::endl;
   }
 
 private:

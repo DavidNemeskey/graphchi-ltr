@@ -109,15 +109,15 @@ public:
         parallel_models[i]->reset();
       }
     }
-    std::cout << std::setprecision(10);
-    std::cout << "LINREG_UPDATE BEFORE ";
-    LinearRegression* lr_model = (LinearRegression*)model;
-    for (size_t i = 0; i < lr_model->weights.size(); i++) {
-      std::cout << lr_model->weights[i] << " ";
-    }
+//    std::cout << std::setprecision(10);
+//    std::cout << "LINREG_UPDATE BEFORE ";
+//    LinearRegression* lr_model = (LinearRegression*)model;
+//    for (size_t i = 0; i < lr_model->weights.size(); i++) {
+//      std::cout << lr_model->weights[i] << " ";
+//    }
 //    std::copy(lr_model->weights.begin(), lr_model->weights.end(),
 //              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << std::endl;
+//    std::cout << std::endl;
   }
 
   /**
@@ -163,13 +163,14 @@ public:
 //      std::cout << "WEIGHTS: ";
 //      std::copy(((LinearRegression*)model)->weights.begin(), ((LinearRegression*)model)->weights.end(), std::ostream_iterator<double>(std::cout, " "));
 //      std::cout << std::endl;
-      std::cout << "NDCG: ";
-      for (std::map<vid_t, double>::const_iterator it = eval->eval.begin();
-          it != eval->eval.end(); ++it) {
-        std::cout << it->second << " ";
+//      std::cout << "NDCG: ";
+//      for (std::map<vid_t, double>::const_iterator it = eval->eval.begin();
+//          it != eval->eval.end(); ++it) {
+//        std::cout << it->second << " ";
       }
 //      std::copy(eval->eval.begin(), eval->eval.end(), std::ostream_iterator<double>(std::cout, " "));
-      std::cout << ", avg: " << eval->avg_eval << std::endl << std::endl;
+//      std::cout << ", avg: " << eval->avg_eval << std::endl << std::endl;
+      std::cout << "AVG NDCG: " << eval->avg_eval << std::endl;
     }
 
     /** Stop if the evaluation results get worse. */

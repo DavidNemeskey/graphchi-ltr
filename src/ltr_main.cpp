@@ -49,6 +49,8 @@ int read_data(std::string file_name, std::string file_type, size_t& dimensions) 
     return read_csv(file_name, dimensions, qid_index, doc_index, rel_index);
   } else if (file_type == "letor") {
     return read_letor(file_name, dimensions);
+  } else if (file_type == "yahoo") {
+    return read_yahoo_ltr(file_name, dimensions);
   } else {
     return 0;
   } 

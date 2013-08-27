@@ -165,3 +165,31 @@ bool LetorReader::read_line(std::string& qid, std::string& doc, int& rel,
   return true;
 }
 
+YahooChallengeReader::YahooChallengeReader(const std::string& file_name)
+  : InputFileReader(file_name) {}
+
+size_t YahooChallengeReader::VECTOR_LENGTH = 519;
+
+bool YahooChallengeReader::read_line(std::string& qid, std::string& doc,
+                                     int& rel, std::vector<double>& features) {
+  std::getline(ifs, line);
+  if (!ifs) return false;
+
+  ss.clear();
+  ss.str(line);
+  std::string token;
+  features.resize(VECTOR_LENGTH);
+  for (size_t i = 0; ; i++) {
+    std::getline(ss, token, ',');
+    if (!ss) break;
+    if (i == 0) {
+      qid = token;
+    } else if (i == VECTOR_LENGTH + 1) {
+      rel = atoi(token.c_str());
+    } else {
+      features[i - 1] = atof(token.c_str());
+    }
+  }
+  return true;
+}
+

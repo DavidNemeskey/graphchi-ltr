@@ -49,6 +49,14 @@ public:
    */
   virtual bool read_line(std::string& qid, std::string& doc, int& rel,
                          std::vector<double>& features)=0;
+
+  /**
+   * Returns the number of features.
+   *
+   * @todo Get rid of this once the static-dynamic API becomes stable.
+   */
+  virtual size_t num_features()=0;
+
 protected:
   /**
    * Opens file @p name with error checking.
@@ -72,6 +80,9 @@ public:
 
   bool read_line(std::string& qid, std::string& doc, int& rel,
                  std::vector<double>& features);
+
+  /** Not implemented. */
+  inline size_t num_features() { return 0; }
 
 private:
   /**
@@ -107,6 +118,28 @@ public:
   bool read_line(std::string& qid, std::string& doc, int& rel,
                  std::vector<double>& features);
 
+  inline size_t num_features() { return VECTOR_LENGTH; }
+
+  /** The number of features. */
+  static size_t VECTOR_LENGTH;
+private:
+  /** Lines are read into this. */
+  std::string line;
+  /** Object for field separation. */
+  std::stringstream ss;
+};
+
+class YahooChallengeReader : public InputFileReader {
+public:
+  YahooChallengeReader(const std::string& file_name);
+
+  /** @p doc is not modified by this method, as it is not part of the data. */
+  bool read_line(std::string& qid, std::string& doc, int& rel,
+                 std::vector<double>& features);
+
+  inline size_t num_features() { return VECTOR_LENGTH; }
+
+  /** The number of features. */
   static size_t VECTOR_LENGTH;
 private:
   /** Lines are read into this. */

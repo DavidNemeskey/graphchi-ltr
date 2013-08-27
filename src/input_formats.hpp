@@ -105,29 +105,26 @@ int read_csv(const std::string& file_name, size_t& dimensions,
 }
 
 /**
- * Reads the LETOR format.
+ * Reads LETOR-like formats.
  *
- * Document ids start from <tt>max_query_id + 1</tt>. It may not be the best
- * solution, but there you have it.
- *
- * @param file_name the name of the file.
- * @param number_of_queries still need this shit. :(
- * @param[out] dimensionsa the number of features is written to this parameter.
+ * @param[in] reader the reader object.
+ * @param[in] file_name the name of the file.
+ * @param[out] dimensions the number of features is written to this parameter.
  */
-int read_letor(const std::string& file_name, size_t& dimensions) {
+int read_inner(InputFileReader& reader,
+               const std::string& file_name, size_t& dimensions) {
   int nshards;
   sharder<FeatureEdge> sharderobj(file_name);
   sharderobj.start_preprocessing();
 
-  LetorReader reader(file_name);
-  if (NUM_FEATURES < LetorReader::VECTOR_LENGTH) {
+  if (NUM_FEATURES < reader.num_features()) {
     sharderobj.end_preprocessing();
     logstream(LOG_FATAL) << "The number of features (" <<
-                            LetorReader::VECTOR_LENGTH <<
+                            reader.num_features() <<
                             ") is too high; recompile with -DNUM_FEATURES " <<
                             "set to the appropriate number." << std::endl;
   }
-  dimensions = LetorReader::VECTOR_LENGTH;
+  dimensions = reader.num_features();
 
   /* For read_line. */
   std::string qid;
@@ -182,3 +179,24 @@ int read_letor(const std::string& file_name, size_t& dimensions) {
   return nshards;
 }
 
+/**
+ * Reads the LETOR format.
+ *
+ * @param file_name the name of the file.
+ * @param[out] dimensions the number of features is written to this parameter.
+ */
+int read_letor(const std::string& file_name, size_t& dimensions) {
+  LetorReader reader(file_name);
+  return read_inner(reader, file_name, dimensions);
+}
+
+/**
+ * Reads the Yahoo LTR Challenge format.
+ *
+ * @param file_name the name of the file.
+ * @param[out] dimensions the number of features is written to this parameter.
+ */
+int read_yahoo_ltr(const std::string& file_name, size_t& dimensions) {
+  YahooChallengeReader reader(file_name);
+  return read_inner(reader, file_name, dimensions);
+}

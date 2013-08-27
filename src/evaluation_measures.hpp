@@ -67,7 +67,6 @@ public:
     }
     avg_eval /= eval.size();
 //    avg_eval = std::accumulate(eval.begin(), eval.end(), 0.0) / eval.size();
-//    std::cout << "EVAL ITERATION: " << iteration << std::endl;
   }
 
 protected:
@@ -178,7 +177,7 @@ public:
 //      std::cout << "IDCG[" << v.id() << "] = " << idcgs[v.id()] << std::endl;
     }
     double dcg = compute_dcg(v, EvaluationMeasure::score_comp);
-    eval[v.id()] = dcg / idcgs[v.id()];
+    eval[v.id()] = idcgs[v.id()] != 0 ? dcg / idcgs[v.id()] : 0;
 //    std::cout << "NDCG[" << v.get_data().id << "] = " << dcg << " / " << idcgs[v.id()]
 //              << " = " << eval[v.id()] << std::endl;
   }

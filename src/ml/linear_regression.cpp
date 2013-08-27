@@ -71,14 +71,14 @@ void LinearRegressionGradient::update(double* const& features, double output, do
   gradients[p.dimensions] += p.learning_rate->get() * mult;
 }
 
-void LinearRegressionGradient::__update_parent() {
-  std::cout << "LINREG_UPDATE_PARENT";
+void LinearRegressionGradient::__update_parent(size_t num_items) {
+  std::cout << "LINREG_UPDATE_PARENT ";
   for (VectorXd::Index i = 0; i < gradients.size(); i++) {
-    std::cout << gradients[i] << " ";
+    std::cout << gradients[i] / num_items << " ";
   }
 //  std::copy(gradients.begin(), gradients.end(),
 //            std::ostream_iterator<double>(std::cout, " "));
   std::cout << std::endl;
-  static_cast<LinearRegression&>(parent).weights -= gradients;
+  static_cast<LinearRegression&>(parent).weights -= gradients / num_items;
 }
 

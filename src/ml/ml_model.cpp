@@ -41,8 +41,8 @@ MlModel::~MlModel() {
 
 Gradient::Gradient(MlModel& parent_) : parent(parent_) {}
 
-void Gradient::update_parent() {
-  __update_parent();
+void Gradient::update_parent(size_t num_items) {
+  __update_parent(num_items);
   parent.learning_rate->advance();
 }
 

@@ -158,9 +158,9 @@ void NeuralNetworkGradient::update(double* const& features,
 //  std::cout << "gradients1: " << std::endl << gradients1 << std::endl;
 }
 
-void NeuralNetworkGradient::__update_parent() {
+void NeuralNetworkGradient::__update_parent(size_t num_items) {
   NeuralNetwork& p = static_cast<NeuralNetwork&>(parent);
-  p.w1 -= gradients1;
-  p.wy -= gradientsy;
+  p.w1 -= gradients1 / num_items;
+  p.wy -= gradientsy / num_items;
 }
 

@@ -98,12 +98,17 @@ public:
    */
   virtual void update(double* const& features, double output, double mult=1)=0;
 
-  /** Updates the parent and advances the learning rate function. */
-  void update_parent();
+  /**
+   * Updates the parent and advances the learning rate function.
+   *
+   * @param[in] num_items the size of the training set. Useful for batch
+   *                      learning, where we have to take the average gradient.
+   */
+  void update_parent(size_t num_items);
 
 protected:
   /** Updates the parent -- subclasses must implement this method. */
-  virtual void __update_parent()=0;
+  virtual void __update_parent(size_t num_items)=0;
 
   /** Reference to the parent. */
   MlModel& parent;

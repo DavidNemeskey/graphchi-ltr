@@ -109,6 +109,10 @@ public:
         parallel_models[i]->reset();
       }
     }
+    /* We count the number of queries. */
+    if (iteration == 0) {
+      num_queries = 0;
+    }
 //    std::cout << std::setprecision(10);
 //    std::cout << "LINREG_UPDATE BEFORE ";
 //    LinearRegression* lr_model = (LinearRegression*)model;
@@ -128,6 +132,10 @@ public:
               graphchi_context &ginfo) {
     // TODO Use a scheduler instead of this?
     if (v.get_data().type == QUERY) {  // Only queries have outedges (TODO: ???)
+      /* We count the number of queries. */
+      if (ginfo.iteration == 0) {
+        num_queries++;
+      }
       score_documents(v, ginfo);
       if (phase == TRAINING) {
         compute_gradients(v, parallel_models[omp_get_thread_num()]);
@@ -148,7 +156,7 @@ public:
 //    std::cout << "LINREG_UPDATES:" << std::endl;
     /* Add the delta. */
     for (int i = 0; i < ginfo.execthreads; i++) {
-      parallel_models[i]->update_parent();
+      parallel_models[i]->update_parent(num_queries);
     }
 //    std::cout << "LINREG_UPDATE AFTER ";
 //    LinearRegression* lr_model = (LinearRegression*)model;
@@ -167,7 +175,7 @@ public:
 //      for (std::map<vid_t, double>::const_iterator it = eval->eval.begin();
 //          it != eval->eval.end(); ++it) {
 //        std::cout << it->second << " ";
-      }
+//      }
 //      std::copy(eval->eval.begin(), eval->eval.end(), std::ostream_iterator<double>(std::cout, " "));
 //      std::cout << ", avg: " << eval->avg_eval << std::endl << std::endl;
       std::cout << "AVG NDCG: " << eval->avg_eval << std::endl;
@@ -245,6 +253,9 @@ protected:
    * @see model
    */
   std::vector<Gradient*> parallel_models;
+
+  /** The total number of queries. */
+  size_t num_queries;
 
   /**
    * The value of the evaluation measure in the last iteration. Used as a

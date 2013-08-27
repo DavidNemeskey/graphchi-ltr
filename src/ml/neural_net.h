@@ -123,7 +123,7 @@ public:
 
 protected:
   /** Updates the parent with the gradients. */
-  void __update_parent();
+  void __update_parent(size_t num_items);
 
 private:
   /**

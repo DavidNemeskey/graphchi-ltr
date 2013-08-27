@@ -33,7 +33,7 @@
 #include "evaluation_measures.hpp"
 #include "ml/learning_rate.h"
 #include "ml/linear_regression.h"
-//#include "ml/neural_net.hpp"
+#include "ml/neural_net.h"
 
 using namespace graphchi;
 
@@ -74,8 +74,8 @@ LtrAlgorithm* get_algorithm(std::string name, MlModel* model,
 MlModel* get_ml_model(std::string name, size_t dimensions, LearningRate* lr) {
     if (name == "linreg") {
         return new LinearRegression(dimensions, lr);
-//    } else if (name == "nn") {
-//        return new NeuralNetwork(dimensions, /* TODO*/ 8);
+    } else if (name == "nn") {
+        return new NeuralNetwork(dimensions, /* TODO */20);
     } else {
         return NULL;
     }

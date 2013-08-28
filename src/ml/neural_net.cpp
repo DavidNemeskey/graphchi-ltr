@@ -73,7 +73,8 @@ Gradient* NeuralNetwork::get_gradient_object() {
 }
 
 void NeuralNetwork::initialize_weights(size_t hidden_neurons) {
-  std::uniform_real_distribution<double> unif(0.1, 1.0);
+  std::uniform_real_distribution<double> unif(
+      -1.0 / sqrt(dimensions), 1.0 / sqrt(dimensions));
   std::default_random_engine re;
   re.seed(1001);
 

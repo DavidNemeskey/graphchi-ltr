@@ -28,7 +28,7 @@ double Sigma::activation(double x) const {
 
 double Sigma::derivative(double sigma_x) const {
 //  double sigma_x = *this(x);
-  return sigma_x * (1 - sigma_x);
+  return sigma_x * (1 - sigma_x);  // TODO: +epsilon(0.1) to avoid saturation?
 }
 
 double Sigma::logit(double x) const {

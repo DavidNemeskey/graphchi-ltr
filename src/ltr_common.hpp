@@ -39,6 +39,8 @@
 #include "graphchi_basic_includes.hpp"
 #include "api/dynamicdata/chivector.hpp"
 
+#include "object.h"
+
 using namespace graphchi;
 
 /** Vertex type that stores a single double. */
@@ -72,12 +74,24 @@ struct TypeVertex {
  * the document by the ranker.
  */
 //DYN typedef chivector<double> FeatureEdge;
-typedef struct {
+struct FeatureEdge : public Object {
   vid_t doc;    // DEBUG only
   int relevance;
   double score;
   double features[NUM_FEATURES];
-} FeatureEdge;
+
+  FeatureEdge() : doc(0), relevance(0), score(0) {}
+
+  std::string str() const {
+    std::ostringstream ss;
+    ss << "FeatureEdge (dim: " << NUM_FEATURES << ", rel: " << relevance
+       << ", score: " << score << "):";
+    for (size_t i = 0; i < NUM_FEATURES; i++) {
+      ss << " " << features[i];
+    }
+    return ss.str();
+  }
+};
 
 //const vid_t max_query_id = std::numeric_limits<vid_t>::max() / 2 - 1;
 

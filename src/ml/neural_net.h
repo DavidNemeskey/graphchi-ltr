@@ -76,6 +76,9 @@ public:
 
   inline double score(double* const& features) const;
 
+  /** Prints the weights. */
+  std::string str() const;
+
   Gradient* get_gradient_object();
 
 private:
@@ -107,6 +110,7 @@ public:
   // TODO unsigned - signed conversion can cause problems
 
   friend class NeuralNetworkGradient;
+  // TODO: to Object?
   friend std::ostream& operator<<(std::ostream& os, const NeuralNetwork& nn);
 };
 
@@ -120,6 +124,8 @@ public:
   void reset();
 
   void update(double* const& features, double y, double mult=1);
+
+  std::string str() const;
 
 protected:
   /** Updates the parent with the gradients. */

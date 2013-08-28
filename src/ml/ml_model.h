@@ -25,10 +25,12 @@
  */
 #include <cstddef>  // size_t
 
+#include "object.h"
+
 class LearningRate;
 class Gradient;
 
-class MlModel {
+class MlModel : public virtual Object {
 protected:
   /** Default constructor; do not use. */
 //  MlModel();
@@ -80,7 +82,7 @@ protected:
  *
  * @see MlModel#get_gradient_object()
  */
-class Gradient {
+class Gradient : virtual public Object {
 public:
   Gradient(MlModel& parent);
 

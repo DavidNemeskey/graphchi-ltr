@@ -49,6 +49,9 @@ public:
 
   double score(double* const& features) const;
 
+  /** Prints the weights. */
+  std::string str() const;
+
 //protected:
   /** The weight vector. Size is dimensions + 1, the last item is the noise. */
   VectorXd weights;
@@ -65,6 +68,8 @@ public:
 
   /** Computes the gradients. */
   void update(double* const& features, double output, double mult=1);
+
+  std::string str() const;
 
 protected:
   /** Updates the parent with the gradients. */

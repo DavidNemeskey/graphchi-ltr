@@ -90,16 +90,26 @@ void NeuralNetwork::initialize_weights(size_t hidden_neurons) {
   for (size_t i = 0; i < hidden_neurons; wy(i++) = unif(re));
 }
 
-std::ostream& operator<<(std::ostream& os, const NeuralNetwork& nn) {
-  os << "HIDDEN LAYER:" << std::endl;
-  size_t hidden_neurons = nn.w1.cols();
-  for (size_t i = 0; i < hidden_neurons; i++) {
-    os << "NEURON: " << i << ":";
-    for (size_t j = 0; j < nn.dimensions + 1; j++) {
-      os << " " << nn.w1(j, i);
+std::string NeuralNetwork::str() const {
+  std::ostringstream ss;
+  ss << "NeuralNetwork (dim: " << dimensions << "):" << std::endl;
+  ss << "  hidden layer:" << std::endl;
+  for (WeightMatrix::Index i = 0; i < w1.cols(); i++) {
+    ss << "neuron " << i << ":";
+    for (size_t j = 0; j < dimensions + 1; j++) {
+      ss << " " << w1(j, i);
     }
-    os << std::endl;
+    ss << std::endl;
   }
+  ss << "  output layer:";
+  for (VectorXd::Index i = 0; i < wy.size(); i++) {
+    ss << " " << wy[i];
+  }
+  return ss.str();
+}
+
+std::ostream& operator<<(std::ostream& os, const NeuralNetwork& nn) {
+  os << nn.str();
   return os;
 }
 
@@ -163,5 +173,24 @@ void NeuralNetworkGradient::__update_parent(size_t num_items) {
   NeuralNetwork& p = static_cast<NeuralNetwork&>(parent);
   p.w1 -= gradients1 / num_items;
   p.wy -= gradientsy / num_items;
+}
+
+std::string NeuralNetworkGradient::str() const {
+  std::ostringstream ss;
+  ss << "NeuralNetworkGradient (dim: "
+     << static_cast<NeuralNetwork&>(parent).dimensions << "):" << std::endl;
+  ss << "  hidden layer:" << std::endl;
+  for (WeightMatrix::Index i = 0; i < gradients1.cols(); i++) {
+    ss << "neuron " << i << ":";
+    for (size_t j = 0; j < static_cast<NeuralNetwork&>(parent).dimensions + 1; j++) {
+      ss << " " << gradients1(j, i);
+    }
+    ss << std::endl;
+  }
+  ss << "  output layer:";
+  for (VectorXd::Index i = 0; i < gradientsy.size(); i++) {
+    ss << " " << gradientsy[i];
+  }
+  return ss.str();
 }
 

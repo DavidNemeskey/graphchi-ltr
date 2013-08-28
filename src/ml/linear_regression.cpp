@@ -23,7 +23,10 @@
  */
 
 #include "linear_regression.h"
+
+#include <sstream>
 #include <iostream>
+
 #include "ml/learning_rate.h"
 //#include <iterator>
 
@@ -54,6 +57,15 @@ LinearRegression* LinearRegression::clone() {
   return new LinearRegression(*this);
 }
 
+std::string LinearRegression::str() const {
+  std::ostringstream ss;
+  ss << "LinearRegression (dim: " << dimensions << "):";
+  for (VectorXd::Index i = 0; i < weights.size(); i++) {
+    ss << " " << weights[i];
+  }
+  return ss.str();
+}
+
 LinearRegressionGradient::LinearRegressionGradient(LinearRegression& parent)
     : Gradient(parent) {
   reset();
@@ -80,5 +92,15 @@ void LinearRegressionGradient::__update_parent(size_t num_items) {
 //            std::ostream_iterator<double>(std::cout, " "));
   std::cout << std::endl;
   static_cast<LinearRegression&>(parent).weights -= gradients / num_items;
+}
+
+std::string LinearRegressionGradient::str() const {
+  std::ostringstream ss;
+  ss << "LinearRegressionGradient (dim: "
+     << static_cast<LinearRegression&>(parent).dimensions << "):";
+  for (VectorXd::Index i = 0; i < gradients.size(); i++) {
+    ss << " " << gradients[i];
+  }
+  return ss.str();
 }
 

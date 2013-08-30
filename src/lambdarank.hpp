@@ -64,7 +64,7 @@ public:
         if (rel_i != rel_j) {
           double S_ij = rel_i > rel_j ? 1 : -1;
           double lambda_ij = dC_per_ds_i(S_ij, s_is[i], s_is[j]) *
-                             opt.delta(query, i, j) * 5;
+                             fabs(opt.delta(query, i, j));
           /* lambda_ij = -lambda_ji */
           lambdas[i] += lambda_ij;
           lambdas[j] -= lambda_ij;
@@ -75,7 +75,7 @@ public:
     /* Finally, the model update. */
     for (int i = 0; i < query.num_outedges(); i++) {
       // -lambdas[i], as C is a utility function in this case
-      umodel->update(query.outedge(i)->get_data().features, s_is[i], -lambdas[i]);
+      umodel->update(query.outedge(i)->get_data().features, s_is[i], lambdas[i]);
     }
   }
 

@@ -122,6 +122,8 @@ public:
 //    std::copy(lr_model->weights.begin(), lr_model->weights.end(),
 //              std::ostream_iterator<double>(std::cout, " "));
 //    std::cout << std::endl;
+
+//    std::cout << "MODEL" << std::endl << model->str() << std::endl << std::endl;
   }
 
   /**
@@ -156,6 +158,8 @@ public:
 //    std::cout << "LINREG_UPDATES:" << std::endl;
     /* Add the delta. */
     for (int i = 0; i < ginfo.execthreads; i++) {
+//      std::cout << "GRADIENT" << std::endl;
+//      std::cout << parallel_models[i]->str() << std::endl << std::endl;
       parallel_models[i]->update_parent(num_queries);
     }
 //    std::cout << "LINREG_UPDATE AFTER ";
@@ -201,12 +205,20 @@ protected:
   /** Scores all documents for the query. The first step in update(). */
   void score_documents(graphchi_vertex<TypeVertex, FeatureEdge> &query,
                        graphchi_context &ginfo) {
+    // XXX
+//    std::map<double, FeatureEdge> scores;
     for (int doc = 0; doc < query.num_outedges(); doc++) {
       //DYN model->score(*(v.outedge(e)->get_vector()));
       FeatureEdge fe = query.outedge(doc)->get_data();
       fe.score = model->score(fe.features);
       query.outedge(doc)->set_data(fe);
+
+//      scores[fe.score] = fe;
     }
+//    for (auto rit = scores.crbegin(); rit != scores.crend(); ++rit) {
+//      std::cout << "Score " << query.id()
+//                << ": " << rit->second.str() << std::endl;
+//    }
   }
 
   /**

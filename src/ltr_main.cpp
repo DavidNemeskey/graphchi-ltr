@@ -71,14 +71,19 @@ LtrAlgorithm* get_algorithm(std::string name, MlModel* model,
 }
 
 /** Instantiates the ML model. */
-MlModel* get_ml_model(std::string name, size_t dimensions, LearningRate* lr) {
-    if (name == "linreg") {
-        return new LinearRegression(dimensions, lr);
-    } else if (name == "nn") {
-        return new NeuralNetwork(dimensions, /* TODO */20);
-    } else {
-        return NULL;
+MlModel* get_ml_model(const std::string& name, size_t dimensions, LearningRate* lr) {
+  if (name == "linreg") {
+    return new LinearRegression(dimensions, lr);
+  } else if (name.compare(0, 2, "nn") == 0) {
+    if (name.length() > 3) {
+      int neurons = atoi(name.substr(3).c_str());
+      if (neurons > 0) {
+        return new NeuralNetwork(dimensions, neurons);
+      }
     }
+    std::cerr << "The number of neurons must be specified." << std::endl;
+  }
+  return NULL;
 }
 
 /**
@@ -132,12 +137,14 @@ int main(int argc, const char ** argv) {
     logstream(LOG_FATAL) << "Model " << model_name <<
                             " is not implemented; select one of " <<
                             "linreg, nn." << std::endl;
+    exit(1);
   }
   EvaluationMeasure* eval = get_evaluation_measure(error_metric, cutoff);
   if (eval == NULL) {
     logstream(LOG_FATAL) << "Evaluation metric " << error_metric <<
                             " is not implemented; select one of " <<
                             "ndcg, err, map." << std::endl;
+    exit(1);
   }
   LtrAlgorithm* algorithm = get_algorithm(algorithm_name, model,
                                           eval, stopping_condition);
@@ -145,6 +152,7 @@ int main(int argc, const char ** argv) {
     logstream(LOG_FATAL) << "Algorithm " << algorithm_name <<
                             " is not implemented; select one of " <<
                             "ranknet, lambdarank, lambdamart." << std::endl;
+    exit(1);
   }
 
   /* Training. */

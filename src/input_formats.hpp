@@ -60,33 +60,16 @@ int read_csv(const std::string& file_name, size_t& dimensions,
   int relevance;
   std::vector<double> features;
   while (reader.read_line(qid, doc, relevance, features)) {
-    FeatureEdge edge_data;
     // TODO: ids might be non-consecutive, use something to handle this
     vid_t qid_i = (vid_t)strtoul(qid.c_str(), NULL, 10);
     vid_t doc_i = (vid_t)strtoul(doc.c_str(), NULL, 10);
     // DEBUG only
-    edge_data.doc = doc_i;
-    // TODO: not really efficient, not safe
-    //DYN if (rel_col != (int)features.size()) {
-      //DYN features.push_back(relevance_level);
-    //DYN }
-    edge_data.relevance = relevance;
-    // Placeholder for the score given to the document by the model
-    //DYN features.push_back(0);
-    //DYN FeatureEdge edge_data(features.size(), features.size(), &features[0]);
-    if (features.size() > NUM_FEATURES) {
-      sharderobj.end_preprocessing();
-      logstream(LOG_FATAL) << "The number of features (" << features.size() <<
-                              ") is too high; recompile with -DNUM_FEATURES " <<
-                              "set to the appropriate number." << std::endl;
-    } else {
-      for (size_t i = 0; i < features.size(); i++) {
-        edge_data.features[i] = features[i];
-      }
+    EHeader hdr(relevance, doc_i);
+    FeatureEdge edge_data(features.size(), hdr);
+    for (size_t i = 0; i < features.size(); i++) {
+      edge_data.add(features[i]);
     }
-    sharderobj.preprocessing_add_edge(
-        qid_i, doc_i, edge_data);
-//        qid_i, doc_i + number_of_queries, edge_data);
+    sharderobj.preprocessing_add_edge(qid_i, doc_i, edge_data);
   }
   /* Save the number of features. */
   dimensions = features.size();
@@ -117,13 +100,6 @@ int read_inner(InputFileReader& reader,
   sharder<FeatureEdge> sharderobj(file_name);
   sharderobj.start_preprocessing();
 
-  if (NUM_FEATURES < reader.num_features()) {
-    sharderobj.end_preprocessing();
-    logstream(LOG_FATAL) << "The number of features (" <<
-                            reader.num_features() <<
-                            ") is too high; recompile with -DNUM_FEATURES " <<
-                            "set to the appropriate number." << std::endl;
-  }
   dimensions = reader.num_features();
 
   /* For read_line. */
@@ -144,7 +120,6 @@ int read_inner(InputFileReader& reader,
     vid_t qid_i;
     vid_t doc_i;
 
-    FeatureEdge edge_data;
     if (qids.find(qid) == qids.end()) {
       /* Write the vertex data. */
       vertex_data = TypeVertex(qid.c_str(), QUERY);
@@ -158,10 +133,10 @@ int read_inner(InputFileReader& reader,
     fwrite(&vertex_data, sizeof(TypeVertex), 1, f);
 
     // DEBUG only
-    edge_data.doc = doc_i;
-    edge_data.relevance = relevance;
+    EHeader hdr(relevance, doc_i);
+    FeatureEdge edge_data(dimensions, hdr);
     for (size_t i = 0; i < features.size(); i++) {
-      edge_data.features[i] = features[i];
+      edge_data.add(features[i]);
     }
     sharderobj.preprocessing_add_edge(qid_i, doc_i, edge_data);
   }

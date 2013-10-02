@@ -42,9 +42,9 @@ public:
    */
   void compute(graphchi_vertex<TypeVertex, FeatureEdge>& v) {
     // TODO: FeatureEdge* to make it faster?
-    std::vector<FeatureEdge> ranked(v.num_outedges());
+    std::vector<FeatureEdge*> ranked(v.num_outedges());
     for (int i = 0; i < v.num_outedges(); i++) {
-      ranked[i] = v.outedge(i)->get_data();
+      ranked[i] = v.outedge(i)->get_vector();
     }
     std::sort(ranked.begin(), ranked.end(), rel_comp);
 
@@ -52,7 +52,7 @@ public:
     for (size_t i = 0; i < ranked.size(); i++) {
 //      std::cout << ranked[i].doc << "(" << ranked[i].relevance << "), ";
       //DYN dcg += (pow(2, best[i]->get(best[i]->size() - 2)) - 1) /
-      dcg += (pow(2, ranked[i].relevance) - 1) /
+      dcg += (pow(2, ranked[i]->header().relevance) - 1) /
              (log(i + 2) / log(2));
     }
 //    std::cout << std::endl;
@@ -65,7 +65,7 @@ public:
     rank_map.clear();
     std::map<double, int> ranking;
     for (int i = 0; i < v.num_outedges(); i++) {
-      ranking[-v.outedge(i)->get_data().score] = i;
+      ranking[-v.outedge(i)->get_vector()->header().score] = i;
 //      std::cout << "ranking[" << -v.outedge(i)->get_data().score << "] = " << i << std::endl;
     }
     int rank = 0;
@@ -90,13 +90,13 @@ public:
   }
 
   /** For inverse sorting by relevance. Needed to compute the iDCG. */
-  static bool rel_comp(const FeatureEdge& e1, const FeatureEdge& e2) {
-    return e1.relevance > e2.relevance;
+  static bool rel_comp(const FeatureEdge* e1, const FeatureEdge* e2) {
+    return e1->header().relevance > e2->header().relevance;
   }
 
   /** For inverse sorting by score. Needed to build the rank map. */
-  static bool score_comp(const FeatureEdge& e1, const FeatureEdge& e2) {
-    return e1.score > e2.score;
+  static bool score_comp(const FeatureEdge* e1, const FeatureEdge* e2) {
+    return e1->header().score > e2->header().score;
   }
 
 private:
@@ -107,7 +107,7 @@ private:
   double ndcg_at_i(graphchi_vertex<TypeVertex, FeatureEdge>& v, int i,
                    int rank) {
     double ret = 
-           (pow(2, v.outedge(i)->get_data().relevance) - 1) /
+           (pow(2, v.outedge(i)->get_vector()->header().relevance) - 1) /
            (log(rank + 2) / log(2));
 //    std::cout << "NDCG(i, rank): rel=" << v.outedge(i)->get_data().relevance
 //              << ", i=" << i << ", rank=" << rank << " => nDCG = " << ret

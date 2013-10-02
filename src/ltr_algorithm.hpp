@@ -208,10 +208,9 @@ protected:
     // XXX
 //    std::map<double, FeatureEdge> scores;
     for (int doc = 0; doc < query.num_outedges(); doc++) {
-      //DYN model->score(*(v.outedge(e)->get_vector()));
-      FeatureEdge fe = query.outedge(doc)->get_data();
-      fe.score = model->score(fe.features);
-      query.outedge(doc)->set_data(fe);
+      FeatureEdge* fe = query.outedge(doc)->get_vector();
+      fe->header().score = model->score(fe->get_data());
+//      query.outedge(doc)->set_vector(fe);
 
 //      scores[fe.score] = fe;
     }
@@ -240,14 +239,14 @@ protected:
   inline double get_score(graphchi_edge<EdgeDataType>* edge) {
     //DYN FeatureEdge* i_vect = edge->get_vector();
     //DYN return i_vect->get(i_vect->size() - 1);
-    return edge->get_data().score;
+    return edge->get_vector()->header().score;
   }
 
   /** Returns the relevance of a query-document pair. */
   inline int get_relevance(graphchi_edge<EdgeDataType>* edge) {
     //DYN FeatureEdge* i_vect = edge->get_vector();
     //DYN return i_vect->get(i_vect->size() - 2);
-    return edge->get_data().relevance;
+    return edge->get_vector()->header().relevance;
   }
 
 protected:

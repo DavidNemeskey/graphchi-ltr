@@ -60,7 +60,6 @@ public:
     /* First, we compute all the outputs. */
     for (int i = 0; i < query.num_outedges(); i++) {
       s_is[i] = get_score(query.outedge(i));
-
     }
 
     /* Now, we compute the errors (lambdas). */
@@ -80,7 +79,7 @@ public:
 
     /* Finally, the model update. */
     for (int i = 0; i < query.num_outedges(); i++) {
-      umodel->update(query.outedge(i)->get_data().features, s_is[i], lambdas[i]);
+      umodel->update(query.outedge(i)->get_vector()->get_data(), s_is[i], lambdas[i]);
     }
   }
 

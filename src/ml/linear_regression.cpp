@@ -76,7 +76,8 @@ void LinearRegressionGradient::reset() {
       static_cast<LinearRegression&>(parent).dimensions + 1, 0);
 }
 
-void LinearRegressionGradient::update(double* const& features, double output, double mult) {
+void LinearRegressionGradient::update(
+    double* const& features, double output, double mult) {
   LinearRegression& p = static_cast<LinearRegression&>(parent);
   gradients.head(p.dimensions) +=
       Map<VectorXd>(features, p.dimensions) * mult * p.learning_rate->get();

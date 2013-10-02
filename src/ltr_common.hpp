@@ -23,10 +23,7 @@
  * 
  * Contains definitions used by the whole LTR toolkit.
  */
-//DYN #define DYNAMICEDATA 1
-#ifndef NUM_FEATURES
-#define NUM_FEATURES 10
-#endif
+#define DYNAMICEDATA 1
 
 #ifndef DOC_ID_LENGTH
 #define DOC_ID_LENGTH 10
@@ -68,26 +65,45 @@ struct TypeVertex {
   TypeVertex() {}
 };
 
+/** Header for the edges: stores relevance and score. */
+struct EHeader : public Object {
+  int relevance;
+  vid_t doc;    // DEBUG only
+  double score;
+  
+  EHeader() {}
+  EHeader(int relevance_, vid_t doc_, double score_=0)
+    : relevance(relevance_), doc(doc_), score(score_) {}
+};
+
 /**
  * The edge data type. A chivector that stores the features, the relevance
  * data as the next-to-last element and (a placeholder for) the score given to
- * the document by the ranker.
+ * the document by the ranker (as an EHeader).
  */
-//DYN typedef chivector<double> FeatureEdge;
-struct FeatureEdge : public Object {
-  vid_t doc;    // DEBUG only
-  int relevance;
-  double score;
-  double features[NUM_FEATURES];
+struct FeatureEdge : public chivector<double, EHeader>, Object {
+  FeatureEdge() {}
+  FeatureEdge(uint16_t cap, EHeader hdr, double* dataptr=NULL)
+    : chivector<double, EHeader>(0, cap, hdr, dataptr) {}
+  FeatureEdge(uint16_t sz, uint16_t cap, EHeader hdr, double* dataptr=NULL)
+    : chivector<double, EHeader>(sz, cap, hdr, dataptr) {}
+  FeatureEdge(size_t cap, EHeader hdr, double* dataptr=NULL)
+    : chivector<double, EHeader>(0, (uint16_t)cap, hdr, dataptr) {}
 
-  FeatureEdge() : doc(0), relevance(0), score(0) {}
+  /**
+   * Returns the pointer to the inner data so that it can be encapsulated in an
+   * Eigen vector.
+   */
+  double* const& get_data() const {
+    return data;
+  }
 
   std::string str() const {
     std::ostringstream ss;
-    ss << "FeatureEdge (dim: " << NUM_FEATURES << ", rel: " << relevance
-       << ", score: " << score << "):";
+    ss << "FeatureEdge (dim: " << NUM_FEATURES << ", rel: " << hdr.relevance
+       << ", score: " << hdr.score << "):";
     for (size_t i = 0; i < NUM_FEATURES; i++) {
-      ss << " " << features[i];
+      ss << " " << data[i];
     }
     return ss.str();
   }

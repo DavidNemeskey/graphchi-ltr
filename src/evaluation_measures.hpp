@@ -86,23 +86,23 @@ protected:
    * Creates a heap from the @c cutoff best edges from vertex @p v,
    * according to comp.
    */
-  std::vector<FeatureEdge> get_best(
+  std::vector<FeatureEdge*> get_best(
             graphchi_vertex<TypeVertex, FeatureEdge> &v,
-            bool (*comp)(FeatureEdge&, FeatureEdge&))
+            bool (*comp)(const FeatureEdge*, const FeatureEdge*))
   {
     int heap_size = std::min(cutoff, v.num_edges());
     //DYN std::vector<FeatureEdge*> best(heap_size);
-    std::vector<FeatureEdge> best(heap_size);
+    std::vector<FeatureEdge*> best(heap_size);
     for (int e = 0; e < heap_size; e++) {
       //DYN best[e] = v.edge(e)->get_vector();
-      best[e] = v.edge(e)->get_data();
+      best[e] = v.edge(e)->get_vector();
     }
     std::make_heap(best.begin(), best.end(), comp);
     if (heap_size < v.num_edges()) {
       std::pop_heap(best.begin(), best.end(), comp);
       for (int e = heap_size; e < v.num_edges(); e++) {
         //DYN FeatureEdge* vect = v.edge(e)->get_vector();
-        FeatureEdge vect = v.edge(e)->get_data();
+        FeatureEdge* vect = v.edge(e)->get_vector();
         if (EvaluationMeasure::rel_comp(vect, best[best.size() - 1])) {
           best[best.size() - 1] = vect;
           std::push_heap(best.begin(), best.end(), comp);
@@ -116,15 +116,15 @@ protected:
   }
 
   /** For inverse heap sorting by score. Needed by the implementations. */
-  static bool score_comp(FeatureEdge& e1, FeatureEdge& e2) {
+  static bool score_comp(const FeatureEdge* e1, const FeatureEdge* e2) {
     //DYN return e1->get(e1->size() - 1) > e2->get(e2->size() - 1);
-    return e1.score > e2.score;
+    return e1->header().score > e2->header().score;
   }
 
   /** For inverse heap sorting by relevance. Needed by the implementations. */
-  static bool rel_comp(FeatureEdge& e1, FeatureEdge& e2) {
+  static bool rel_comp(const FeatureEdge* e1, const FeatureEdge* e2) {
     //DYN return e1->get(e1->size() - 2) > e2->get(e2->size() - 2);
-    return e1.relevance > e2.relevance;
+    return e1->header().relevance > e2->header().relevance;
   }
 
 public:
@@ -152,15 +152,15 @@ public:
    * @c rel_comp is used, it computes IDCG. 
    */
   double compute_dcg(graphchi_vertex<TypeVertex, FeatureEdge> &v,
-                     bool (*comp)(FeatureEdge&, FeatureEdge&)) {
-    std::vector<FeatureEdge> best = get_best(v, comp);
+                     bool (*comp)(const FeatureEdge*, const FeatureEdge*)) {
+    std::vector<FeatureEdge*> best = get_best(v, comp);
 //    std::cout << "RANKING for query " << v.get_data().id << ": ";
 
     double dcg = 0;
     for (size_t i = 0; i < best.size(); i++) {
 //      std::cout << best[i].doc << "(" << best[i].relevance << "), ";
       //DYN dcg += (pow(2, best[i]->get(best[i]->size() - 2)) - 1) /
-      dcg += (pow(2, best[i].relevance) - 1) /
+      dcg += (pow(2, best[i]->header().relevance) - 1) /
              (log(i + 2) / log(2));
     }
 //    std::cout << std::endl;

@@ -75,7 +75,7 @@ public:
     /* Finally, the model update. */
     for (int i = 0; i < query.num_outedges(); i++) {
       // -lambdas[i], as C is a utility function in this case
-      umodel->update(query.outedge(i)->get_data().features, s_is[i], lambdas[i]);
+      umodel->update(query.outedge(i)->get_vector()->get_data(), s_is[i], lambdas[i]);
     }
   }
 

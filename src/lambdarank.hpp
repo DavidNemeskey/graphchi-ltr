@@ -41,7 +41,7 @@ public:
 
   /****************************** GraphChi stuff ******************************/
 
-  /** The actual RankNet implementation. */
+  /** The actual LambdaRank implementation. */
   virtual void compute_gradients(
       graphchi_vertex<TypeVertex, FeatureEdge> &query, Gradient* umodel) {
     std::vector<double> lambdas(query.num_outedges());

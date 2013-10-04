@@ -76,38 +76,40 @@ struct EHeader : public Object {
     : relevance(relevance_), doc(doc_), score(score_) {}
 };
 
-/**
- * The edge data type. A chivector that stores the features, the relevance
- * data as the next-to-last element and (a placeholder for) the score given to
- * the document by the ranker (as an EHeader).
- */
-struct FeatureEdge : public chivector<double, EHeader>, Object {
-  FeatureEdge() {}
-  FeatureEdge(uint16_t cap, EHeader hdr, double* dataptr=NULL)
-    : chivector<double, EHeader>(0, cap, hdr, dataptr) {}
-  FeatureEdge(uint16_t sz, uint16_t cap, EHeader hdr, double* dataptr=NULL)
-    : chivector<double, EHeader>(sz, cap, hdr, dataptr) {}
-  FeatureEdge(size_t cap, EHeader hdr, double* dataptr=NULL)
-    : chivector<double, EHeader>(0, (uint16_t)cap, hdr, dataptr) {}
+typedef chivector<double, EHeader> FeatureEdge;
 
-  /**
-   * Returns the pointer to the inner data so that it can be encapsulated in an
-   * Eigen vector.
-   */
-  double* const& get_data() const {
-    return data;
-  }
-
-  std::string str() const {
-    std::ostringstream ss;
-    ss << "FeatureEdge (dim: " << NUM_FEATURES << ", rel: " << hdr.relevance
-       << ", score: " << hdr.score << "):";
-    for (size_t i = 0; i < NUM_FEATURES; i++) {
-      ss << " " << data[i];
-    }
-    return ss.str();
-  }
-};
+///**
+// * The edge data type. A chivector that stores the features, the relevance
+// * data as the next-to-last element and (a placeholder for) the score given to
+// * the document by the ranker (as an EHeader).
+// */
+//struct FeatureEdge : public chivector<double, EHeader>, Object {
+//  FeatureEdge() {}
+//  FeatureEdge(uint16_t cap, EHeader hdr, double* dataptr=NULL)
+//    : chivector<double, EHeader>(0, cap, hdr, dataptr) {}
+//  FeatureEdge(uint16_t sz, uint16_t cap, EHeader hdr, double* dataptr=NULL)
+//    : chivector<double, EHeader>(sz, cap, hdr, dataptr) {}
+//  FeatureEdge(size_t cap, EHeader hdr, double* dataptr=NULL)
+//    : chivector<double, EHeader>(0, (uint16_t)cap, hdr, dataptr) {}
+//
+//  /**
+//   * Returns the pointer to the inner data so that it can be encapsulated in an
+//   * Eigen vector.
+//   */
+//  double* const& get_data() const {
+//    return data;
+//  }
+//
+//  std::string str() const {
+//    std::ostringstream ss;
+//    ss << "FeatureEdge (dim: " << NUM_FEATURES << ", rel: " << hdr.relevance
+//       << ", score: " << hdr.score << "):";
+//    for (size_t i = 0; i < NUM_FEATURES; i++) {
+//      ss << " " << data[i];
+//    }
+//    return ss.str();
+//  }
+//};
 
 //const vid_t max_query_id = std::numeric_limits<vid_t>::max() / 2 - 1;
 

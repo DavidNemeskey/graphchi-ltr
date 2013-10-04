@@ -51,7 +51,7 @@ int read_csv(const std::string& file_name, size_t& dimensions,
              bool has_header=true) {
   /* Create sharder object */
   int nshards;
-  sharder<FeatureEdge> sharderobj(file_name);
+  sharder<double, EHeader> sharderobj(file_name);
   sharderobj.start_preprocessing();
 
   CsvReader reader(file_name, qid_col, doc_col, rel_col, has_header);
@@ -65,11 +65,8 @@ int read_csv(const std::string& file_name, size_t& dimensions,
     vid_t doc_i = (vid_t)strtoul(doc.c_str(), NULL, 10);
     // DEBUG only
     EHeader hdr(relevance, doc_i);
-    FeatureEdge edge_data(features.size(), hdr);
-    for (size_t i = 0; i < features.size(); i++) {
-      edge_data.add(features[i]);
-    }
-    sharderobj.preprocessing_add_edge(qid_i, doc_i, edge_data);
+    //sharderobj.preprocessing_add_edge(qid_i, doc_i, edge_data);
+    sharderobj.preprocessing_add_edge_multival(qid_i, doc_i, hdr, features);
   }
   /* Save the number of features. */
   dimensions = features.size();
@@ -97,7 +94,7 @@ int read_csv(const std::string& file_name, size_t& dimensions,
 int read_inner(InputFileReader& reader,
                const std::string& file_name, size_t& dimensions) {
   int nshards;
-  sharder<FeatureEdge> sharderobj(file_name);
+  sharder<double, EHeader> sharderobj(file_name);
   sharderobj.start_preprocessing();
 
   dimensions = reader.num_features();
@@ -134,11 +131,8 @@ int read_inner(InputFileReader& reader,
 
     // DEBUG only
     EHeader hdr(relevance, doc_i);
-    FeatureEdge edge_data(dimensions, hdr);
-    for (size_t i = 0; i < features.size(); i++) {
-      edge_data.add(features[i]);
-    }
-    sharderobj.preprocessing_add_edge(qid_i, doc_i, edge_data);
+//    sharderobj.preprocessing_add_edge(qid_i, doc_i, edge_data);
+    sharderobj.preprocessing_add_edge_multival(qid_i, doc_i, hdr, features);
   }
 
   fclose(f);

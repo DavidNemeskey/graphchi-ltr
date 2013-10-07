@@ -97,8 +97,6 @@ int read_inner(InputFileReader& reader,
   sharder<double, EHeader> sharderobj(file_name);
   sharderobj.start_preprocessing();
 
-  dimensions = reader.num_features();
-
   /* For read_line. */
   std::string qid;
   int relevance;
@@ -114,6 +112,8 @@ int read_inner(InputFileReader& reader,
   FILE* f = fopen(filename.c_str(), "w");
 
   while (reader.read_line(qid, qid, relevance, features)) {
+    dimensions = reader.num_features();
+
     vid_t qid_i;
     vid_t doc_i;
 

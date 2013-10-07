@@ -137,11 +137,15 @@ public:
   bool read_line(std::string& qid, std::string& doc, int& rel,
                  std::vector<double>& features);
 
-  inline size_t num_features() { return VECTOR_LENGTH; }
+  inline size_t num_features() { return vector_length; }
+
+private:
+  /** Reads the first line and sets vector_length. */
+  bool read_first_line(std::string& qid, std::string& doc, int& rel,
+                       std::vector<double>& features);
 
   /** The number of features. */
-  static size_t VECTOR_LENGTH;
-private:
+  size_t vector_length;
   /** Lines are read into this. */
   std::string line;
   /** Object for field separation. */

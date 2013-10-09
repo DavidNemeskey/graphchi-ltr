@@ -24,13 +24,12 @@
  * In-memory regression tree model.
  */
 
-#include "ml_model.h"
+//#include "ml_model.h"
 
 #include <Eigen/Dense>
 
 class LearningRate;
 
-using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using Eigen::ArrayXXd;
 using Eigen::ArrayXd;
@@ -101,7 +100,8 @@ public:
    * Reads a data point: the features and the output value, and stores them in
    * the data matrix.
    */
-  void read_data_item(double* const& features, double& output);
+  void read_data_item(double* const& features, const double& output);
+  void read_data_item(Eigen::ArrayXd& features, const double& output);
 
   /** Finalizes the data; to be called after all data points have been read. */
   void finalize_data();
@@ -152,7 +152,7 @@ private:
   ArrayXXi sorted;
 
   /** The number of columns in @c data and the number of elements in @c classes. */
-  MatrixXd::Index cols;
+  ArrayXXd::Index rows_read;
 
   /** The tree. */
   RealNode* tree;

@@ -2,13 +2,15 @@
 #include "ml/learning_rate.h"
 //#include <Eigen/util/Constants.h>
 
+#include <iostream>
+
 using Eigen::Map;
 using Eigen::RowVectorXd;
 using Eigen::ArrayXi;
 
 RegressionTree::RegressionTree(size_t dimensions_, LearningRate* learning_rate_)
   : dimensions(dimensions_), learning_rate(learning_rate_),
-    data(ArrayXXd(1000, dimensions_)), outputs(ArrayXd(1000)), cols(0),
+    data(ArrayXXd(1000, dimensions_)), outputs(ArrayXd(1000)), rows_read(0),
     tree(NULL) {
   if (learning_rate == NULL) {
     learning_rate = new ConstantLearningRate(0.9);
@@ -20,21 +22,35 @@ RegressionTree::~RegressionTree() {
   delete tree;
 }
 
-void RegressionTree::read_data_item(double* const& features, double& output) {
+void RegressionTree::read_data_item(double* const& features, const double& output) {
   /* Expand the data matrix. */
-  if (data.cols() == cols) {
-    data.conservativeResize(Eigen::NoChange, 2 * data.cols());
+  if (data.rows() == rows_read) {
+    data.conservativeResize(Eigen::NoChange, 2 * data.rows());
     outputs.conservativeResize(2 * outputs.size());
   }
 
-  data.row(cols) = Map<RowVectorXd>(features, dimensions);
-  outputs(cols) = output;
-  cols++;
+  data.row(rows_read) = Map<RowVectorXd>(features, dimensions);
+  outputs(rows_read) = output;
+  rows_read++;
+}
+
+// TODO: merge the two
+void RegressionTree::read_data_item(Eigen::ArrayXd& features, const double& output) {
+  /* Expand the data matrix. */
+  if (data.rows() == rows_read) {
+    data.conservativeResize(Eigen::NoChange, 2 * data.rows());
+    outputs.conservativeResize(2 * outputs.size());
+  }
+
+  // TODO: size() check?
+  data.row(rows_read) = features.head(dimensions);
+  outputs(rows_read) = output;
+  rows_read++;
 }
 
 void RegressionTree::finalize_data() {
-  data.conservativeResize(Eigen::NoChange, cols);
-  outputs.conservativeResize(cols);
+  data.conservativeResize(rows_read, Eigen::NoChange);
+  outputs.conservativeResize(rows_read);
 }
 
 void RegressionTree::create_sorted() {
@@ -64,7 +80,7 @@ void RegressionTree::build_tree(double delta, size_t q) {
   tree = new RealNode(0);
   tree->output = outputs.sum() / outputs.size();
   tree->error  = (outputs - tree->output).pow(2).sum();
-  ArrayXi valid = ArrayXi::Ones(sorted.rows());
+  ArrayXi valid = ArrayXi::Zero(sorted.rows());
   int max_id = 0;
   split_node(tree, valid, max_id, valid.size(), delta, q);
 }
@@ -94,12 +110,13 @@ void RegressionTree::split_node(Node* node, ArrayXi& valid, int& max_id,
     /* Number of valids on the left side of the split. */
     size_t left_valids = 0;
     /* All possible split with that feature. */
-    for (size_t split = 0; split < sorted.rows() - q; split++) {
+    for (size_t split = 0; split <= sorted.rows() - q; split++) {
       if (valid(sorted(split, f)) != node->id) continue;  // Document not under this node
 
-      if (left_valids >= q) {
+      size_t right_valids = num_docs - left_valids;
+      if (left_valids >= q && right_valids >= q) {
         auto head = sorted_outputs.head(left_valids);
-        auto tail = sorted_outputs.tail(num_docs - left_valids);
+        auto tail = sorted_outputs.tail(right_valids);
         double left_error = (head - head.sum() / head.size()).pow(2).sum();
         double right_error = (tail - tail.sum() / tail.size()).pow(2).sum();
         double curr_error = left_error + right_error;
@@ -148,8 +165,12 @@ void RegressionTree::split_node(Node* node, ArrayXi& valid, int& max_id,
     node->right->output = min_tail.sum() / min_tail.size();
     node->right->error = min_right_error;
 
-    split_node(node->left, valid, max_id, left_docs, delta, q);
-    split_node(node->right, valid, max_id, right_docs, delta, q);
+    if (left_docs >= 2 * q) {
+      split_node(node->left, valid, max_id, left_docs, delta, q);
+    }
+    if (right_docs >= 2 * q) {
+      split_node(node->right, valid, max_id, right_docs, delta, q);
+    }
   }
 }
 
@@ -173,5 +194,28 @@ RegressionTree::Comp::Comp(const ArrayXXd& data_, ArrayXXd::Index column_)
 
 bool RegressionTree::Comp::operator() (int i, int j) const {
   return data(i, column) < data(j, column);
+}
+
+int test_regression_tree() {
+  RegressionTree r(3);
+  Eigen::ArrayXd f(3);
+  f << 1, 1, 8;
+  r.read_data_item(f, 1);
+  f << 2, 3, 7;
+  r.read_data_item(f, 2);
+  f << 3, 4, 4;
+  r.read_data_item(f, 2);
+  f << 4, 2, 3;
+  r.read_data_item(f, 1);
+  f << 5, 6, 1;
+  r.read_data_item(f, 3);
+  f << 6, 8, 2;
+  r.read_data_item(f, 4);
+  f << 7, 5, 5;
+  r.read_data_item(f, 3);
+  f << 8, 7, 6;
+  r.read_data_item(f, 4);
+  r.finalize_data();
+  r.build_tree(0, 2);
 }
 

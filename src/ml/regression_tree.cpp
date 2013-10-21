@@ -210,7 +210,8 @@ void RegressionTree::str_inner(std::stringstream& ss,
   if (node->left == NULL) {
     ss << ": " << node->output << " (err: " << node->error << ")" << std::endl;
   } else {
-    ss << ": $" << node->feature_no << " < " << node->feature_val << " ? " << std::endl;
+    ss << ": " << node->output << " (err: " << node->error << ") $"
+       << node->feature_no << " < " << node->feature_val << " ? " << std::endl;
     str_inner(ss, (RealNode*)node->left, level + 1);
     str_inner(ss, (RealNode*)node->right, level + 1);
   }

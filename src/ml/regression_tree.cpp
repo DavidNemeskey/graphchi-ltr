@@ -1,8 +1,9 @@
 #include "ml/regression_tree.h"
-#include "ml/learning_rate.h"
-//#include <Eigen/util/Constants.h>
 
 #include <iostream>
+
+#include "ml/learning_rate.h"
+#include "ml/utils.h"
 
 using Eigen::Map;
 using Eigen::RowVectorXd;
@@ -92,8 +93,9 @@ void RegressionTree::split_node(Node* node, ArrayXi& valid, int& max_id,
   double min_value   = 0;
   double min_left_error  = 0;
   double min_right_error = 0;
-  ArrayXd::SegmentReturnType min_head = outputs.head(0);  // placeholder only
-  ArrayXd::SegmentReturnType min_tail = outputs.tail(0);  // placeholder only
+//  ArrayXd::SegmentReturnType min_head = outputs.head(0);  // placeholder only
+//  ArrayXd::SegmentReturnType min_tail = outputs.tail(0);  // placeholder only
+  ArrayXd min_head, min_tail; 
   size_t min_left_valids = 0;
 
   // TODO: to argument?
@@ -109,9 +111,26 @@ void RegressionTree::split_node(Node* node, ArrayXi& valid, int& max_id,
 
     /* Number of valids on the left side of the split. */
     size_t left_valids = 0;
-    /* All possible split with that feature. */
+    /*
+     * The last value of the feature. Recorded for two reasons:
+     * 1. we cannot put a cutting point between two equal-valued item;
+     * 2. the check value will be halfway between the last and the current items.
+     */
+    double last_value = DNaN;
+    /* 
+     * All possible split with that feature -- we cannot start at q, because we
+     * have to keep track of split.
+     */
     for (size_t split = 0; split <= sorted.rows() - q; split++) {
       if (valid(sorted(split, f)) != node->id) continue;  // Document not under this node
+
+      double& curr_value = data(sorted(split, f));
+
+      /* last_value/1: skip if feature value is the same as last item's. */
+      if (double_equals(last_value, curr_value)) {
+        left_valids++;  // still, it was a valid item
+        continue;
+      }
 
       size_t right_valids = num_docs - left_valids;
       if (left_valids >= q && right_valids >= q) {
@@ -123,7 +142,10 @@ void RegressionTree::split_node(Node* node, ArrayXi& valid, int& max_id,
         if (curr_error < min_error) {
           min_error   = curr_error;
           min_feature = f;
-          min_value   = data(sorted(split, f), f);
+          // last_value/2.
+          min_value   = isnan(last_value)
+                        ? curr_value - epsilon
+                        : (last_value + curr_value) / 2;
           min_left_error = left_error;
           min_right_error = right_error;
           min_head = head;
@@ -133,8 +155,9 @@ void RegressionTree::split_node(Node* node, ArrayXi& valid, int& max_id,
       }
 
       left_valids++;
-    }
-  }
+      last_value = data(sorted(split, f), f);
+    }  // for split
+  }  // for features
 
   if (min_error + delta < node->error) {
     node->feature_no  = min_feature;
@@ -174,6 +197,25 @@ void RegressionTree::split_node(Node* node, ArrayXi& valid, int& max_id,
   }
 }
 
+std::string RegressionTree::str() const {
+  std::stringstream ss;
+  str_inner(ss, tree, 0);
+  return ss.str();
+}
+
+void RegressionTree::str_inner(std::stringstream& ss,
+                               RealNode* node, size_t level) const {
+  for (size_t i = 0; i < level; i++) ss << "  ";
+  ss << node->id;
+  if (node->left == NULL) {
+    ss << ": " << node->output << " (err: " << node->error << ")" << std::endl;
+  } else {
+    ss << ": $" << node->feature_no << " < " << node->feature_val << " ? " << std::endl;
+    str_inner(ss, (RealNode*)node->left, level + 1);
+    str_inner(ss, (RealNode*)node->right, level + 1);
+  }
+}
+
 RegressionTree::Node::Node(int id_) : id(id_) {}
 
 bool RegressionTree::Node::is_leaf() const {
@@ -196,7 +238,27 @@ bool RegressionTree::Comp::operator() (int i, int j) const {
   return data(i, column) < data(j, column);
 }
 
-int test_regression_tree() {
+void test_regression_tree2() {
+  RegressionTree r(1);
+  Eigen::ArrayXd f(1);
+  f << 1.5;
+  r.read_data_item(f, 1);
+  f << 1.5;
+  r.read_data_item(f, 1);
+  f << 3;
+  r.read_data_item(f, 1);
+  f << 3;
+  r.read_data_item(f, 2);
+  f << 3;
+  r.read_data_item(f, 2);
+  f << 3;
+  r.read_data_item(f, 2);
+  r.finalize_data();
+  r.build_tree(0, 1);
+  std::cout << r.str();
+}
+
+void test_regression_tree() {
   RegressionTree r(3);
   Eigen::ArrayXd f(3);
   f << 1, 1, 8;
@@ -217,5 +279,6 @@ int test_regression_tree() {
   r.read_data_item(f, 4);
   r.finalize_data();
   r.build_tree(0, 2);
+  std::cout << r.str();
 }
 

@@ -27,6 +27,8 @@
 //#include "ml_model.h"
 
 #include <Eigen/Dense>
+#include <string>
+#include <sstream>
 
 class LearningRate;
 
@@ -121,6 +123,12 @@ public:
   std::string str() const;
 
 private:
+  /**
+   * Used by str(): recursively traverses the tree, and collects the string
+   * representation in @param ss.
+   */
+  void str_inner(std::stringstream& ss, RealNode* node, size_t level) const;
+
   /** Creates the @c sorted array. */
   void create_sorted();
 
@@ -157,5 +165,8 @@ private:
   /** The tree. */
   RealNode* tree;
 };
+
+//void test_regression_tree();
+//void test_regression_tree2();
 
 #endif

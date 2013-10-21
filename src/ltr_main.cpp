@@ -34,6 +34,7 @@
 #include "ml/learning_rate.h"
 #include "ml/linear_regression.h"
 #include "ml/neural_net.h"
+#include "ml/regression_tree.h"
 
 using namespace graphchi;
 

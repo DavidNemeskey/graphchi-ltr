@@ -1,3 +1,4 @@
+0. Add query id to DataContainer.
 1. LambdaRank should update the weights after each query.
 2. Integrate LambdaMART into LtrAlgorithm.
 3. RegressionTree and MART should receive the data object in the builder method,

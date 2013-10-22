@@ -30,6 +30,7 @@
 #include <string>
 #include <sstream>
 
+class DataContainer;
 class LearningRate;
 
 using Eigen::VectorXd;
@@ -95,7 +96,7 @@ protected:
   RegressionTree(RegressionTree& orig);
   
 public:
-  RegressionTree(size_t dimensions, LearningRate* learning_rate=NULL);
+  RegressionTree(DataContainer* data, LearningRate* learning_rate=NULL);
   ~RegressionTree();
 
   /**
@@ -143,15 +144,12 @@ private:
   void split_node(Node* node, ArrayXi& valid, int& max_id,
                   ArrayXi::Index num_docs, double delta, size_t q);
 
-  /** Dimensions of the feature space. */
-  size_t dimensions;
+  /** The data we are learning from. */
+  DataContainer* data;
   /** The learning rate function. */
   LearningRate* learning_rate;
 
-  /** The data, read fully into memory. */
-  ArrayXXd data;
-  /** The outputs associated with the data items in @c data. */
-  ArrayXd outputs;
+
   /**
    * An index of data. The value of the <tt>n</tt>th cell in each column in
    * @c sorted is the row of the <tt>n</tt>th smallest number in the same column
@@ -159,14 +157,14 @@ private:
    */
   ArrayXXi sorted;
 
-  /** The number of columns in @c data and the number of elements in @c classes. */
+  /** The number of rows in @c data and the number of elements in @c classes. */
   ArrayXXd::Index rows_read;
 
   /** The tree. */
   RealNode* tree;
 };
 
-//void test_regression_tree();
-//void test_regression_tree2();
+void test_regression_tree();
+void test_regression_tree2();
 
 #endif

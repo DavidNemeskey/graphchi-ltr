@@ -100,16 +100,6 @@ public:
   ~RegressionTree();
 
   /**
-   * Reads a data point: the features and the output value, and stores them in
-   * the data matrix.
-   */
-  void read_data_item(double* const& features, const double& output);
-  void read_data_item(Eigen::ArrayXd& features, const double& output);
-
-  /** Finalizes the data; to be called after all data points have been read. */
-  void finalize_data();
-
-  /**
    * Builds the tree.
    * @param[in] delta if the error does not decrease by at least @p delta, stop.
    * @param[in] q if one of the children would have at most q nodes, stop.
@@ -156,9 +146,6 @@ private:
    * in @c data.
    */
   ArrayXXi sorted;
-
-  /** The number of rows in @c data and the number of elements in @c classes. */
-  ArrayXXd::Index rows_read;
 
   /** The tree. */
   RealNode* tree;

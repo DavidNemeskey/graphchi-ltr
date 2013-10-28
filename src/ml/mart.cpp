@@ -23,6 +23,7 @@ void MART::learn(const DataContainer& data, size_t no_trees) {
     for (ArrayXd::Index data_i = 0; data_i < lambdas.size(); data_i++) {
 
     }  // for data_i
-    ReferenceDataContainer tree_data(data.dimensions, data.data(), lambdas);
+    ReferenceDataContainer tree_data(data.dimensions, data.qids(),
+                                     data.data(), lambdas);
   }  // for k
 }

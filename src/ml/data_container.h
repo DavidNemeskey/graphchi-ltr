@@ -28,6 +28,7 @@
 
 using Eigen::ArrayXXd;
 using Eigen::ArrayXd;
+using Eigen::ArrayXi;
 
 /** Data container interface class. */
 struct DataContainer {
@@ -39,6 +40,8 @@ struct DataContainer {
 
   /** The number of features in the data. */
   size_t dimensions;
+  /** The query ids of the data points. */
+  virtual const ArrayXi& qids() const=0;
   /** The data. */
   virtual const ArrayXXd& data() const=0;
   /** The outputs. */
@@ -61,16 +64,21 @@ public:
    * Reads a data point: the features and the output value, and stores them in
    * the data matrix.
    */
-  void read_data_item(double* const& features, const double& output);
-  void read_data_item(const Eigen::ArrayXd& features, const double& output);
+  void read_data_item(const int& qid, double* const& features,
+                      const double& output);
+  void read_data_item(const int& qid, const Eigen::ArrayXd& features,
+                      const double& output);
 
   /** Finalizes the data; to be called after all data points have been read. */
   void finalize_data();
 
+  inline const ArrayXi& qids() const { return qids_; }
   inline const ArrayXXd& data() const { return data_; }
   inline const ArrayXd& outputs() const { return outputs_; }
 
 private:
+  /** The query ids of the data points. */
+  ArrayXi qids_;
   /** The data, read fully into memory. */
   ArrayXXd data_;
   /** The outputs associated with the data items in @c data. */
@@ -83,14 +91,16 @@ private:
 /** Same as DataContainer, but the data is only referenced. */
 class ReferenceDataContainer : public DataContainer {
 public:
-  ReferenceDataContainer(
-      size_t dimensions, const ArrayXXd& data, const ArrayXd& outputs);
+  ReferenceDataContainer(size_t dimensions, const ArrayXi& qids,
+                         const ArrayXXd& data, const ArrayXd& outputs);
   ReferenceDataContainer(const DataContainer& data);
 
+  inline const ArrayXi& qids() const { return qids_; }
   inline const ArrayXXd& data() const { return data_; }
   inline const ArrayXd& outputs() const { return outputs_; }
 
 private:
+  const ArrayXi& qids_;
   const ArrayXXd& data_;
   const ArrayXd& outputs_;
 };

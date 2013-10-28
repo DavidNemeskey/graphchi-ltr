@@ -8,7 +8,7 @@ InputDataContainer::InputDataContainer(size_t dimensions_)
   : DataContainer(dimensions_), data_(ArrayXXd(1000, dimensions_)),
     outputs_(ArrayXd(1000)), rows_read(0) {}
 
-void InputDataContainer::read_data_item(
+void InputDataContainer::read_data_item(const int& qid,
     const Eigen::ArrayXd& features, const double& output) {
   /* Expand the data matrix. */
   if (data_.rows() == rows_read) {
@@ -22,9 +22,9 @@ void InputDataContainer::read_data_item(
   rows_read++;
 }
 
-void InputDataContainer::read_data_item(
+void InputDataContainer::read_data_item(const int& qid,
     double* const& features, const double& output) {
-  read_data_item(Map<ArrayXd>(features, dimensions), output);
+  read_data_item(qid, Map<ArrayXd>(features, dimensions), output);
 }
 
 void InputDataContainer::finalize_data() {
@@ -33,9 +33,11 @@ void InputDataContainer::finalize_data() {
 }
 
 ReferenceDataContainer::ReferenceDataContainer(
-    size_t dimensions_, const ArrayXXd& data__, const ArrayXd& outputs__)
-  : DataContainer(dimensions_), data_(data__), outputs_(outputs__) {}
+    size_t dimensions_, const ArrayXi& qids__,
+    const ArrayXXd& data__, const ArrayXd& outputs__)
+  : DataContainer(dimensions_), qids_(qids__), data_(data__), outputs_(outputs__) {}
 
 ReferenceDataContainer::ReferenceDataContainer(const DataContainer& data)
-  : DataContainer(data.dimensions), data_(data.data()), outputs_(data.outputs()) {}
+  : DataContainer(data.dimensions), qids_(data.qids()), data_(data.data()),
+    outputs_(data.outputs()) {}
 

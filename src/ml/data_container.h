@@ -29,12 +29,33 @@
 using Eigen::ArrayXXd;
 using Eigen::ArrayXd;
 
+/** Data container interface class. */
 struct DataContainer {
   /**
    * Constructor.
    * @param dimensions the number of features in the data.
    */
   DataContainer(size_t dimensions);
+
+  /** The number of features in the data. */
+  size_t dimensions;
+  /** The data. */
+  virtual const ArrayXXd& data() const=0;
+  /** The outputs. */
+  virtual const ArrayXd& outputs() const=0;
+};
+
+/**
+ * DataContainer subclass that builds the data and output via callback functions
+ * invoked by a reader or a similar class.
+ */
+class InputDataContainer : public DataContainer {
+public:
+  /**
+   * Constructor.
+   * @param dimensions the number of features in the data.
+   */
+  InputDataContainer(size_t dimensions);
 
   /**
    * Reads a data point: the features and the output value, and stores them in
@@ -46,14 +67,31 @@ struct DataContainer {
   /** Finalizes the data; to be called after all data points have been read. */
   void finalize_data();
 
-  /** The number of features in the data. */
-  size_t dimensions;
+  inline const ArrayXXd& data() const { return data_; }
+  inline const ArrayXd& outputs() const { return outputs_; }
 
+private:
   /** The data, read fully into memory. */
-  ArrayXXd data;
+  ArrayXXd data_;
   /** The outputs associated with the data items in @c data. */
-  ArrayXd outputs;
+  ArrayXd outputs_;
 
   /** The number of rows read thus far. */
   ArrayXXd::Index rows_read;
 };
+
+/** Same as DataContainer, but the data is only referenced. */
+class ReferenceDataContainer : public DataContainer {
+public:
+  ReferenceDataContainer(
+      size_t dimensions, const ArrayXXd& data, const ArrayXd& outputs);
+  ReferenceDataContainer(const DataContainer& data);
+
+  inline const ArrayXXd& data() const { return data_; }
+  inline const ArrayXd& outputs() const { return outputs_; }
+
+private:
+  const ArrayXXd& data_;
+  const ArrayXd& outputs_;
+};
+

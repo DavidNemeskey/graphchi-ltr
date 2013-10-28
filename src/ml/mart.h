@@ -23,25 +23,24 @@
  * In-memory MART.
  */
 
+#include <cstdlib>
+#include <Eigen/Dense>
+
+using Eigen::ArrayXXd;
+using Eigen::ArrayXd;
+
 class DataContainer;
 class LearningRate;
 
 class MART {
 public:
-  MART(DataContainer* data, LearningRate* learning_rate=NULL);
+  MART(LearningRate* learning_rate=NULL);
   ~MART();
 
-  void learn(size_t no_trees);
+  void learn(const DataContainer& data, size_t no_trees);
 
 private:
-  /** The data we are learning from. */
-  DataContainer* data;
   /** The learning rate function. */
   LearningRate* learning_rate;
-
-  /** The outputs for all data points in @c data. */
-  ArrayXd F;
-  /** The lambdas, alias the y_i's. */
-  ArrayXd lambdas;
 };
 

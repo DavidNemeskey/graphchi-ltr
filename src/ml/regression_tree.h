@@ -33,7 +33,6 @@
 class DataContainer;
 class LearningRate;
 
-using Eigen::VectorXd;
 using Eigen::ArrayXXd;
 using Eigen::ArrayXd;
 using Eigen::ArrayXXi;
@@ -96,15 +95,16 @@ protected:
   RegressionTree(RegressionTree& orig);
   
 public:
-  RegressionTree(DataContainer* data, LearningRate* learning_rate=NULL);
+  RegressionTree(LearningRate* learning_rate=NULL);
   ~RegressionTree();
 
   /**
    * Builds the tree.
+   * @param[in] data the data we are learning from.
    * @param[in] delta if the error does not decrease by at least @p delta, stop.
    * @param[in] q if one of the children would have at most q nodes, stop.
    */
-  void build_tree(double delta, size_t q);
+  void build_tree(const DataContainer& data, double delta, size_t q);
 
   // TODO: does this model need gradients at all? I don't think so.
 
@@ -121,24 +121,22 @@ private:
   void str_inner(std::stringstream& ss, RealNode* node, size_t level) const;
 
   /** Creates the @c sorted array. */
-  void create_sorted();
+  void create_sorted(const DataContainer& data);
 
-//  /**
-//   * Recursively splits the nodes in the tree.
-//   *
-//   * @param[in,out] valid an index of the valid rows -- each needs its won valid
-//   *                      vector.
-//   * @param[in,out] max_id the maximum node id thus far.
-//   * @param[in] num_docs the number of documents under the current node.
-//   */
-  void split_node(Node* node, ArrayXi& valid, int& max_id,
+  /**
+   * Recursively splits the nodes in the tree.
+   *
+   * @param[in,out] valid an index of the valid rows -- each needs its won valid
+   *                      vector.
+   * @param[in,out] max_id the maximum node id thus far.
+   * @param[in] num_docs the number of documents under the current node.
+   */
+  void split_node(Node* node, const DataContainer& data,
+                  ArrayXi& valid, int& max_id,
                   ArrayXi::Index num_docs, double delta, size_t q);
 
-  /** The data we are learning from. */
-  DataContainer* data;
   /** The learning rate function. */
   LearningRate* learning_rate;
-
 
   /**
    * An index of data. The value of the <tt>n</tt>th cell in each column in

@@ -10,8 +10,8 @@ using Eigen::Map;
 using Eigen::RowVectorXd;
 using Eigen::ArrayXi;
 
-RegressionTree::RegressionTree(DataContainer* data_, LearningRate* learning_rate_)
-  : data(data_), learning_rate(learning_rate_), tree(NULL) {
+RegressionTree::RegressionTree(LearningRate* learning_rate_)
+  : learning_rate(learning_rate_), tree(NULL) {
   if (learning_rate == NULL) {
     learning_rate = new ConstantLearningRate(0.9);
   }
@@ -22,18 +22,18 @@ RegressionTree::~RegressionTree() {
   delete tree;
 }
 
-void RegressionTree::create_sorted() {
+void RegressionTree::create_sorted(const DataContainer& data) {
   /* First, create the sorted array, ... */
-  sorted.resize(data->data.rows(), data->data.cols());
-  ArrayXi tmp = ArrayXi::Constant(data->data.cols(), 0);
+  sorted.resize(data.data().rows(), data.data().cols());
+  ArrayXi tmp = ArrayXi::Constant(data.data().cols(), 0);
   for (size_t i = 0; i < sorted.rows(); i++) {
     sorted.row(i) = tmp;
     tmp += 1;
   }
   /* ... then sort! */
   auto begin = sorted.data();
-  Comp comp(data->data);
-  for (ArrayXXd::Index col = 0; col < data->data.cols(); col++) {
+  Comp comp(data.data());
+  for (ArrayXXd::Index col = 0; col < data.data().cols(); col++) {
     comp.column = col;
     std::sort(begin, begin + sorted.rows(), comp);
     begin += sorted.rows();
@@ -44,23 +44,26 @@ void RegressionTree::create_sorted() {
  * @param[in] delta if the error does not decrease by at least @p delta, stop.
  * @param[in] q if one of the children would have at most q nodes, stop.
  */
-void RegressionTree::build_tree(double delta, size_t q) {
-  create_sorted();
+void RegressionTree::build_tree(const DataContainer& data, double delta, size_t q) {
+  create_sorted(data);
 
   tree = new RealNode(0);
-  tree->output = data->outputs.sum() / data->outputs.size();
-  tree->error  = (data->outputs - tree->output).pow(2).sum();
+  tree->output = data.outputs().sum() / data.outputs().size();
+  tree->error  = (data.outputs() - tree->output).pow(2).sum();
   ArrayXi valid = ArrayXi::Zero(sorted.rows());
   int max_id = 0;
-  split_node(tree, valid, max_id, valid.size(), delta, q);
+  split_node(tree, data, valid, max_id, valid.size(), delta, q);
 
   sorted.resize(0, 0);
 }
 
-void RegressionTree::split_node(Node* node, ArrayXi& valid, int& max_id,
+void RegressionTree::split_node(Node* node, const DataContainer& data,
+                                ArrayXi& valid, int& max_id,
                                 ArrayXi::Index num_docs, double delta, size_t q) {
   double min_error   = node->error;
-  size_t min_feature = data->dimensions;
+  size_t min_feature = data.dimensions;
+  const ArrayXXd& data_    = data.data();
+  const ArrayXXd& outputs_ = data.outputs();
   double min_value   = 0;
   double min_left_error  = 0;
   double min_right_error = 0;
@@ -74,11 +77,11 @@ void RegressionTree::split_node(Node* node, ArrayXi& valid, int& max_id,
   ArrayXd sorted_outputs(num_docs);
 
   /* Iterate through all features. */
-  for (size_t f = 0; f < data->dimensions; f++) {
+  for (size_t f = 0; f < data.dimensions; f++) {
     /* The outputs sorted by the current feature. */
     for (size_t i = 0, j = 0; j < sorted_outputs.size(); i++) {
       if (valid(sorted(i, f)) == node->id)
-        sorted_outputs(j++) = data->outputs(sorted(i, f));
+        sorted_outputs(j++) = outputs_(sorted(i, f));
     }
 
     /* Number of valids on the left side of the split. */
@@ -96,7 +99,7 @@ void RegressionTree::split_node(Node* node, ArrayXi& valid, int& max_id,
     for (size_t split = 0; split <= sorted.rows() - q; split++) {
       if (valid(sorted(split, f)) != node->id) continue;  // Document not under this node
 
-      double& curr_value = data->data(sorted(split, f), f);
+      const double& curr_value = data_(sorted(split, f), f);
 
       /* last_value/1: skip if feature value is the same as last item's. */
       if (double_equals(last_value, curr_value)) {
@@ -127,7 +130,7 @@ void RegressionTree::split_node(Node* node, ArrayXi& valid, int& max_id,
       }
 
       left_valids++;
-      last_value = data->data(sorted(split, f), f);
+      last_value = data_(sorted(split, f), f);
     }  // for split
   }  // for features
 
@@ -141,7 +144,7 @@ void RegressionTree::split_node(Node* node, ArrayXi& valid, int& max_id,
     // TODO: sparse / set / map
     for (ArrayXXi::Index i = 0; i < valid.size(); i++) {
       if (valid(i) == node->id) {
-        if (data->data(i, min_feature) < min_value) {
+        if (data_(i, min_feature) < min_value) {
           valid(i) = left_id;
         } else {
           valid(i) = right_id;
@@ -156,8 +159,8 @@ void RegressionTree::split_node(Node* node, ArrayXi& valid, int& max_id,
     node->right->output = min_tail.sum() / min_tail.size();
     node->right->error = min_right_error;
 
-    split_node(node->left, valid, max_id, min_left_valids, delta, q);
-    split_node(node->right, valid, max_id, num_docs - min_left_valids, delta, q);
+    split_node(node->left, data, valid, max_id, min_left_valids, delta, q);
+    split_node(node->right, data, valid, max_id, num_docs - min_left_valids, delta, q);
   }
 }
 
@@ -204,7 +207,7 @@ bool RegressionTree::Comp::operator() (int i, int j) const {
 }
 
 void test_regression_tree2() {
-  DataContainer d(1);
+  InputDataContainer d(1);
   Eigen::ArrayXd f(1);
   f << 1.5;
   d.read_data_item(f, 1);
@@ -220,13 +223,13 @@ void test_regression_tree2() {
   d.read_data_item(f, 2);
   d.finalize_data();
 
-  RegressionTree r(&d);
-  r.build_tree(0, 1);
+  RegressionTree r;
+  r.build_tree(d, 0, 1);
   std::cout << r.str();
 }
 
 void test_regression_tree() {
-  DataContainer d(3);
+  InputDataContainer d(3);
   Eigen::ArrayXd f(3);
   f << 1, 1, 8;
   d.read_data_item(f, 1);
@@ -246,8 +249,8 @@ void test_regression_tree() {
   d.read_data_item(f, 4);
   d.finalize_data();
 
-  RegressionTree r(&d);
-  r.build_tree(0, 2);
+  RegressionTree r;
+  r.build_tree(d, 0, 2);
   std::cout << r.str();
 }
 

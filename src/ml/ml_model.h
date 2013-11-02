@@ -33,7 +33,7 @@ class Gradient;
 class MlModel : public virtual Object {
 protected:
   /** Default constructor; do not use. */
-//  MlModel();
+  MlModel();
   /** Copy constructor. */
   MlModel(MlModel& orig);
 
@@ -55,12 +55,6 @@ public:
   virtual double score(double* const& features) const=0;
 
   /**
-   * Creates the gradient object for the model that aggregates the gradient
-   * updates.
-   */
-  virtual Gradient* get_gradient_object()=0;
-
-  /**
    * Clones the model. Subclasses must implement it so that it calls the copy
    * constructor of the subclass in question.
    */
@@ -71,6 +65,33 @@ protected:
   size_t dimensions;
   /** The learning rate function. */
   LearningRate* learning_rate;
+};
+
+class DifferentiableModel : public MlModel {
+protected:
+  /** Default constructor; do not use. */
+//  MlModel();
+  /** Copy constructor. */
+  DifferentiableModel(DifferentiableModel& orig);
+
+public:
+  /**
+   * Constructor.
+   * @param dimensions the number of dimensions of the data.
+   * @param learning_rate the learning rate strategy. If @c NULL, a constant
+   *        learning rate of 0.9 is used.
+   */
+  DifferentiableModel(size_t dimensions, LearningRate* learning_rate=NULL);
+  // TODO: argument type to template? parameter
+
+  /** Just overriding the return type. */
+  virtual DifferentiableModel* clone()=0;
+
+  /**
+   * Creates the gradient object for the model that aggregates the gradient
+   * updates.
+   */
+  virtual Gradient* get_gradient_object()=0;
 
   friend class Gradient;
 };
@@ -80,11 +101,11 @@ protected:
  * by the learning algorithm in the feature weight space, and then update
  * the model.
  *
- * @see MlModel#get_gradient_object()
+ * @see DifferentiableModel#get_gradient_object()
  */
 class Gradient : virtual public Object {
 public:
-  Gradient(MlModel& parent);
+  Gradient(DifferentiableModel& parent);
 
   /** Resets the weights to 0. */
   virtual void reset()=0;
@@ -113,7 +134,7 @@ protected:
   virtual void __update_parent(size_t num_items)=0;
 
   /** Reference to the parent. */
-  MlModel& parent;
+  DifferentiableModel& parent;
 };
 
 // TODO: learning_rate to class!

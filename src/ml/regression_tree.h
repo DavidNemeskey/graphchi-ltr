@@ -30,6 +30,8 @@
 #include <string>
 #include <sstream>
 
+#include "ml/ml_model.h"
+
 class DataContainer;
 class LearningRate;
 
@@ -39,7 +41,7 @@ using Eigen::ArrayXXi;
 using Eigen::ArrayXi;
 
 // TODO: Create in-memory model ancestor class
-class RegressionTree {
+class RegressionTree : public MlModel {
 protected:
   /** A node in the tree; ancestor class. */
   struct Node {
@@ -92,11 +94,17 @@ protected:
     bool operator() (int i, int j) const;
   };
 
+  /**
+   * Shallow copies the tree.
+   * @todo Real cloning.
+   */
   RegressionTree(RegressionTree& orig);
   
 public:
-  RegressionTree(LearningRate* learning_rate=NULL);
+  RegressionTree();
   ~RegressionTree();
+
+  RegressionTree* clone();
 
   /**
    * Builds the tree.

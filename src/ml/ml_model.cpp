@@ -25,6 +25,8 @@
 #include "ml/ml_model.h"
 #include "ml/learning_rate.h"
 
+MlModel::MlModel() {}
+
 MlModel::MlModel(size_t dimensions_, LearningRate* learning_rate_)
   : dimensions(dimensions_), learning_rate(learning_rate_) {
   if (learning_rate == NULL) {
@@ -39,7 +41,14 @@ MlModel::~MlModel() {
   delete learning_rate;
 }
 
-Gradient::Gradient(MlModel& parent_) : parent(parent_) {}
+DifferentiableModel::DifferentiableModel(
+    size_t dimensions, LearningRate* learning_rate)
+  : MlModel(dimensions, learning_rate) {}
+
+DifferentiableModel::DifferentiableModel(DifferentiableModel& orig)
+  : MlModel(orig) {}
+
+Gradient::Gradient(DifferentiableModel& parent_) : parent(parent_) {}
 
 void Gradient::update_parent(size_t num_items) {
   __update_parent(num_items);

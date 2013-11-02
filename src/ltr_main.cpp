@@ -58,7 +58,7 @@ int read_data(std::string file_name, std::string file_type, size_t& dimensions) 
 }
 
 /** Instantiates the selected algorithm. */
-LtrAlgorithm* get_algorithm(std::string name, MlModel* model,
+LtrAlgorithm* get_algorithm(std::string name, DifferentiableModel* model,
                             EvaluationMeasure* eval, StoppingCondition stop) {
   if (name == "ranknet_old") {
     return new RankNet(model, eval, stop);
@@ -72,7 +72,7 @@ LtrAlgorithm* get_algorithm(std::string name, MlModel* model,
 }
 
 /** Instantiates the ML model. */
-MlModel* get_ml_model(const std::string& name, size_t dimensions, LearningRate* lr) {
+DifferentiableModel* get_ml_model(const std::string& name, size_t dimensions, LearningRate* lr) {
   if (name == "linreg") {
     return new LinearRegression(dimensions, lr);
   } else if (name.compare(0, 2, "nn") == 0) {
@@ -133,7 +133,7 @@ int main(int argc, const char ** argv) {
 
   LearningRate* lr_obj = create_learning_rate_function(learning_rate);
   /* Instantiate the algorithm. */
-  MlModel* model = get_ml_model(model_name, dimensions, lr_obj);
+  DifferentiableModel* model = get_ml_model(model_name, dimensions, lr_obj);
   if (model == NULL) {
     logstream(LOG_FATAL) << "Model " << model_name <<
                             " is not implemented; select one of " <<

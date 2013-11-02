@@ -43,6 +43,16 @@ public:
   /** Sorts the documents according to their rankings. */
   void rankings(const ArrayXd& outputs);
 
+  /** Initializes the object (calls compute_idcg()). */
+  inline void initialize(const ArrayXd& relevance) {
+    compute_idcg(relevance);
+  }
+  /** Initializes the object (calls compute_idcg() rankings()). */
+  inline void initialize(const ArrayXd& relevance, const ArrayXd& outputs) {
+    compute_idcg(relevance);
+    rankings(outputs);
+  }
+
   /**
    * Returns the delta in the nDCG score if document @p i and @p j change
    * places in the ranking.

@@ -35,7 +35,7 @@
 class RankNet : public LtrAlgorithm {
 public:
   /** @param[in] sigma parameter of the sigmoid. */
-  RankNet(MlModel* model, EvaluationMeasure* eval,
+  RankNet(DifferentiableModel* model, EvaluationMeasure* eval,
           StoppingCondition stop, LtrRunningPhase phase=TRAINING, double sigma=1)
       : LtrAlgorithm(model, eval, stop, phase), sigma(sigma) {
   }

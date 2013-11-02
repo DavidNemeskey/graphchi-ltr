@@ -1,2 +1,4 @@
 1. LambdaRank should update the weights after each query.
 2. Integrate LambdaMART into LtrAlgorithm.
+3. MlModel vs DifferentiableMlModel
+4. Get rid of input guards in favor of #pragma once.

@@ -34,11 +34,12 @@ using Eigen::Map;
 
 LinearRegression::LinearRegression(
     size_t dimensions, LearningRate* learning_rate)
-  : MlModel(dimensions, learning_rate) {
+  : DifferentiableModel(dimensions, learning_rate) {
   weights = VectorXd::Constant(dimensions + 1, 1);
 }
 
-LinearRegression::LinearRegression(LinearRegression& orig) : MlModel(orig) {
+LinearRegression::LinearRegression(LinearRegression& orig)
+    : DifferentiableModel(orig) {
   weights = orig.weights;
 }
 

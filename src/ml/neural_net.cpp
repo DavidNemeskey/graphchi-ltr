@@ -26,13 +26,13 @@ void print_vec(const std::string& s, const VectorXd& v) {
 
 NeuralNetwork::NeuralNetwork(size_t dimensions, size_t hidden_neurons,
                              LearningRate* learning_rate, Activation* act_fn)
-    : MlModel(dimensions, learning_rate), hidden_neurons(hidden_neurons) {
+    : DifferentiableModel(dimensions, learning_rate), hidden_neurons(hidden_neurons) {
   initialize_weights(hidden_neurons);
   outputs = VectorXd::Zero(hidden_neurons);
   afn.reset(act_fn != NULL ? act_fn : new Sigma(1));
 }
 
-NeuralNetwork::NeuralNetwork(NeuralNetwork& orig) : MlModel(orig) {
+NeuralNetwork::NeuralNetwork(NeuralNetwork& orig) : DifferentiableModel(orig) {
   afn.reset(orig.afn->clone());
   w1 = orig.w1;
   wy = orig.wy;

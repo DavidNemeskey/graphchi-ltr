@@ -54,19 +54,19 @@ inline double RealNdcgOptimizer::dcg_at_i(
   return (pow(2, relevance(i)) - 1) / (log(rank + 2) / log_2);
 }
 
-int main(int argc, char* argv[]) {
-  RealNdcgOptimizer r;
-  ArrayXd vr(4);
-  vr << 3, 2, 4, 1;
-  r.compute_idcg(vr);
-  std::cout << r.idcg << std::endl;
-  ArrayXd vo(4);
+//int main(int argc, char* argv[]) {
+//  RealNdcgOptimizer r;
+//  ArrayXd vr(4);
+//  vr << 3, 2, 4, 1;
+//  r.compute_idcg(vr);
+//  std::cout << r.idcg << std::endl;
+//  ArrayXd vo(4);
+////  vo << 3, 2, 1, 4;
 //  vo << 3, 2, 1, 4;
-  vo << 3, 2, 1, 4;
-  r.rankings(vo);
-  for (size_t i = 0; i < r.ranking_order.size(); i++) {
-    std::cout << r.ranking_order[i] << std::endl;
-  }
-  std::cout << "ndcg " << r.compute_ndcg(vr) << std::endl;
-  std::cout << "delta " << r.delta(vr, 2, 3) << std::endl;
-}
+//  r.rankings(vo);
+//  for (size_t i = 0; i < r.ranking_order.size(); i++) {
+//    std::cout << r.ranking_order[i] << std::endl;
+//  }
+//  std::cout << "ndcg " << r.compute_ndcg(vr) << std::endl;
+//  std::cout << "delta " << r.delta(vr, 2, 3) << std::endl;
+//}

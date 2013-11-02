@@ -10,15 +10,18 @@ using Eigen::Map;
 using Eigen::RowVectorXd;
 using Eigen::ArrayXi;
 
-RegressionTree::RegressionTree(LearningRate* learning_rate_)
-  : learning_rate(learning_rate_), tree(NULL) {
-  if (learning_rate == NULL) {
-    learning_rate = new ConstantLearningRate(0.9);
-  }
+RegressionTree::RegressionTree() : MlModel(), tree(NULL) {
+}
+
+RegressionTree::RegressionTree(RegressionTree& orig) {
+  tree = orig.tree;
+}
+
+RegressionTree* RegressionTree::clone() {
+  return new RegressionTree(*this);
 }
 
 RegressionTree::~RegressionTree() {
-  delete learning_rate;
   delete tree;
 }
 
@@ -48,8 +51,8 @@ void RegressionTree::build_tree(const DataContainer& data, double delta, size_t 
   create_sorted(data);
 
   tree = new RealNode(0);
-  tree->output = data.outputs().sum() / data.outputs().size();
-  tree->error  = (data.outputs() - tree->output).pow(2).sum();
+  tree->output = data.relevance().sum() / data.relevance().size();
+  tree->error  = (data.relevance() - tree->output).pow(2).sum();
   ArrayXi valid = ArrayXi::Zero(sorted.rows());
   int max_id = 0;
   split_node(tree, data, valid, max_id, valid.size(), delta, q);
@@ -63,7 +66,7 @@ void RegressionTree::split_node(Node* node, const DataContainer& data,
   double min_error   = node->error;
   size_t min_feature = data.dimensions;
   const ArrayXXd& data_    = data.data();
-  const ArrayXXd& outputs_ = data.outputs();
+  const ArrayXXd& outputs_ = data.relevance();
   double min_value   = 0;
   double min_left_error  = 0;
   double min_right_error = 0;
@@ -162,6 +165,11 @@ void RegressionTree::split_node(Node* node, const DataContainer& data,
     split_node(node->left, data, valid, max_id, min_left_valids, delta, q);
     split_node(node->right, data, valid, max_id, num_docs - min_left_valids, delta, q);
   }
+}
+
+// TODO: IMPLEMENT!
+double RegressionTree::score(double* const& features) const {
+  return 0;
 }
 
 std::string RegressionTree::str() const {

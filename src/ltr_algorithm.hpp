@@ -66,7 +66,7 @@ public:
    * @param[in] model the ML model; deleted together with this object.
    * @param[in] phase which phase of the algorithm to run.
    */
-  LtrAlgorithm(MlModel* model, EvaluationMeasure* eval,
+  LtrAlgorithm(DifferentiableModel* model, EvaluationMeasure* eval,
                StoppingCondition stop, LtrRunningPhase phase=TRAINING)
       : model(model), eval(eval), stop(stop), phase(phase),
         last_eval_value(0)
@@ -251,7 +251,7 @@ protected:
 
 protected:
   /** The model that backs up RankNet. */
-  MlModel* model;
+  DifferentiableModel* model;
   /** The evaluation measure. */
   EvaluationMeasure* eval;
   /** The stopping condition. */
@@ -278,7 +278,7 @@ protected:
    * Backup of the ML model from the last iteration. If we stop because the
    * evaluation measure gets worse, we need to return the backed up model.
    */
-  std::auto_ptr<MlModel> last_model;
+  std::auto_ptr<DifferentiableModel> last_model;
 };
 
 #endif

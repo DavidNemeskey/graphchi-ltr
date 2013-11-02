@@ -26,11 +26,16 @@
 #include <cstdlib>
 #include <Eigen/Dense>
 
+#include "ndcg_optimizer.h"
+#include "ml/boosting.h"
+
 using Eigen::ArrayXXd;
 using Eigen::ArrayXd;
+using Eigen::ArrayXi;
 
 class DataContainer;
 class LearningRate;
+class RegressionTree;
 
 class MART {
 public:
@@ -40,7 +45,28 @@ public:
   void learn(const DataContainer& data, size_t no_trees);
 
 private:
+  /**
+   * Returns the indices of the data items that belong to a different query than
+   * the one before them; called by learn().
+   */
+  std::vector<ArrayXi::Index> queries(const DataContainer& data) const;
+
+  /** The derivative of C over s_i == lambda_ij. */
+  double dC_per_ds_i(const double S_ij, const double s_i, const double s_j);
+
   /** The learning rate function. */
   LearningRate* learning_rate;
+
+  /**
+   * The evaluation metric used to optimize LambdaMART.
+   * @todo Accept metrics other than nDCG.
+   */
+  std::vector<RealNdcgOptimizer> metric;
+  // TODO: remove sigma
+  /** The (ignored) sigma parameter. */
+  double sigma;
+
+  /** The boosting container -- could be a parent class too. */
+  Boosting trees;
 };
 

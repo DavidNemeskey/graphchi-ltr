@@ -36,7 +36,7 @@ using Eigen::VectorXd;
  * @todo regularization!
  * @todo use Eigen vectors
  */
-class LinearRegression : public MlModel {
+class LinearRegression : public DifferentiableModel {
 protected:
   LinearRegression(LinearRegression& orig);
 

@@ -59,7 +59,7 @@ typedef VectorXd WeightVector;
  *
  * @todo regularization!
  */
-class NeuralNetwork : public MlModel {
+class NeuralNetwork : public DifferentiableModel {
 protected:
   NeuralNetwork(NeuralNetwork& orig);
 

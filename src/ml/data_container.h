@@ -44,13 +44,13 @@ struct DataContainer {
   virtual const ArrayXi& qids() const=0;
   /** The data. */
   virtual const ArrayXXd& data() const=0;
-  /** The outputs. */
-  virtual const ArrayXd& outputs() const=0;
+  /** The relevance judgements. */
+  virtual const ArrayXd& relevance() const=0;
 };
 
 /**
- * DataContainer subclass that builds the data and output via callback functions
- * invoked by a reader or a similar class.
+ * DataContainer subclass that builds the data and relevance judgement matrices
+ * via callback functions invoked by a reader or a similar class.
  */
 class InputDataContainer : public DataContainer {
 public:
@@ -61,28 +61,28 @@ public:
   InputDataContainer(size_t dimensions);
 
   /**
-   * Reads a data point: the features and the output value, and stores them in
-   * the data matrix.
+   * Reads a data point: the features and the relevance value, and stores them
+   * in the data matrix.
    */
   void read_data_item(const int& qid, double* const& features,
-                      const double& output);
+                      const double& relevance);
   void read_data_item(const int& qid, const Eigen::ArrayXd& features,
-                      const double& output);
+                      const double& relevance);
 
   /** Finalizes the data; to be called after all data points have been read. */
   void finalize_data();
 
   inline const ArrayXi& qids() const { return qids_; }
   inline const ArrayXXd& data() const { return data_; }
-  inline const ArrayXd& outputs() const { return outputs_; }
+  inline const ArrayXd& relevance() const { return relevance_; }
 
 private:
   /** The query ids of the data points. */
   ArrayXi qids_;
   /** The data, read fully into memory. */
   ArrayXXd data_;
-  /** The outputs associated with the data items in @c data. */
-  ArrayXd outputs_;
+  /** The relevance judgements associated with the data items in @c data. */
+  ArrayXd relevance_;
 
   /** The number of rows read thus far. */
   ArrayXXd::Index rows_read;
@@ -92,16 +92,16 @@ private:
 class ReferenceDataContainer : public DataContainer {
 public:
   ReferenceDataContainer(size_t dimensions, const ArrayXi& qids,
-                         const ArrayXXd& data, const ArrayXd& outputs);
+                         const ArrayXXd& data, const ArrayXd& relevance);
   ReferenceDataContainer(const DataContainer& data);
 
   inline const ArrayXi& qids() const { return qids_; }
   inline const ArrayXXd& data() const { return data_; }
-  inline const ArrayXd& outputs() const { return outputs_; }
+  inline const ArrayXd& relevance() const { return relevance_; }
 
 private:
   const ArrayXi& qids_;
   const ArrayXXd& data_;
-  const ArrayXd& outputs_;
+  const ArrayXd& relevance_;
 };
 

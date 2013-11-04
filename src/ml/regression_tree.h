@@ -120,7 +120,21 @@ public:
   /** Prints the tree. */
   std::string str() const;
 
-//private:
+  size_t num_nodes();
+
+  /** Sets the output for node @p node. */
+  void set_output(Node* node, double output);
+  /**
+   * Sets the output for the node whose id is @p node_id.
+   * @throw std::invalid_argument if @p node_id does not correspond to a node in
+   *                              the tree.
+   */
+  void set_output(int node_id, double output) throw (std::invalid_argument);
+  /** Recursive helper method for set_output(int, double). */
+  bool set_output(Node* node, int node_id, double output)
+      throw (std::invalid_argument);
+
+private:
   /**
    * Used by str(): recursively traverses the tree, and collects the string
    * representation in @param ss.
@@ -142,19 +156,6 @@ public:
                   ArrayXi& valid, int& max_id,
                   ArrayXi::Index num_docs, double delta, size_t q);
 
-  /** Sets the output for node @p node. */
-  void set_output(Node* node, double output);
-  /**
-   * Sets the output for the node whose id is @p node_id.
-   * @throw std::invalid_argument if @p node_id does not correspond to a node in
-   *                              the tree.
-   */
-  void set_output(int node_id, double output) throw (std::invalid_argument);
-
-  /** Recursive helper method for set_output(int, double). */
-  bool set_output(Node* node, int node_id, double output)
-      throw (std::invalid_argument);
-
   /**
    * An index of data. The value of the <tt>n</tt>th cell in each column in
    * @c sorted is the row of the <tt>n</tt>th smallest number in the same column
@@ -166,7 +167,7 @@ public:
   RealNode* tree;
 
   /** Number of nodes in the tree. */
-  size_t num_nodes;
+  size_t num_nodes_;
 };
 
 void test_regression_tree();

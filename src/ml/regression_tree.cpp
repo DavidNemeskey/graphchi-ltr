@@ -53,7 +53,7 @@ ArrayXi RegressionTree::build_tree(const DataContainer& data, double delta, size
   split_node(tree, data, valid, max_id, valid.size(), delta, q);
 
   sorted.resize(0, 0);
-  num_nodes = static_cast<size_t>(max_id) + 1;
+  num_nodes_ = static_cast<size_t>(max_id) + 1;
   return valid;
 }
 
@@ -213,6 +213,10 @@ void RegressionTree::str_inner(std::stringstream& ss,
   }
 }
 
+size_t RegressionTree::num_nodes() {
+  return num_nodes_;
+}
+
 RegressionTree::Node::Node(int id_) : id(id_), left(NULL), right(NULL) {}
 
 bool RegressionTree::Node::is_leaf() const {
@@ -283,7 +287,7 @@ void test_regression_tree() {
   RegressionTree* r = new RegressionTree();
   ArrayXi iii = r->build_tree(d, 0, 2);
   std::cout << r->str();
-  std::cout << "num_nodes " << r->num_nodes << std::endl;
+  std::cout << "num_nodes " << r->num_nodes() << std::endl;
   std::cout << "mapping " << std::endl << iii << std::endl;
 }
 

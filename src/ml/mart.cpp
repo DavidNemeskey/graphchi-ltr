@@ -1,4 +1,7 @@
 #include "ml/mart.h"
+
+#include <map>
+
 #include "ml/data_container.h"
 #include "ml/learning_rate.h"
 #include "ml/regression_tree.h"
@@ -73,8 +76,17 @@ void MART::learn(const DataContainer& data, size_t no_trees) {
     // TODO: set these parameters? Or maybe use the ones in the papers?
     ReferenceDataContainer tree_data(data.dimensions, data.qids(),
                                      data.data(), lambdas);
-    rt->build_tree(tree_data, 1e-6, 50);
-    // TODO gamma
+    ArrayXi node_mapping = rt->build_tree(tree_data, 1e-6, 50);
+    std::map<int, std::pair<double, double> > gamma_fraq;
+    for (size_t i = 0; i < node_mapping.size(); i++) {
+      std::pair<double, double>& pair = gamma_fraq[node_mapping(i)];
+      pair.first  += lambdas(i);
+      pair.second += w(i);
+    }
+    for (auto it = gamma_fraq.begin(); it != gamma_fraq.end(); ++it) {
+      rt->set_output(it->first, it->second.first / it->second.second);
+    }
+
     trees.add_model(rt, learning_rate->get());
     /* Break if the end of the learning rate's interval is reached. */
     if (learning_rate->advance() == 0) {

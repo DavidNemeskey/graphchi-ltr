@@ -1,5 +1,4 @@
-#ifndef DEF_EVALUATION_MEASURES_H
-#define DEF_EVALUATION_MEASURES_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -200,4 +199,3 @@ private:
 //  }
 //};
 
-#endif

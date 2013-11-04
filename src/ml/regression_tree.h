@@ -1,5 +1,4 @@
-#ifndef DEF_REGRESSION_TREE_H
-#define DEF_REGRESSION_TREE_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -160,4 +159,3 @@ private:
 void test_regression_tree();
 void test_regression_tree2();
 
-#endif

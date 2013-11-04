@@ -1,5 +1,4 @@
-#ifndef DEF_NEURAL_NET_H
-#define DEF_NEURAL_NET_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -143,4 +142,3 @@ private:
   WeightVector gradientsy;
 };
 
-#endif

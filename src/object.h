@@ -1,5 +1,4 @@
-#ifndef DEF_OBJECT_H
-#define DEF_OBJECT_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -54,4 +53,3 @@ struct Object {
   inline virtual std::string str() const { return "Object"; }
 };
 
-#endif

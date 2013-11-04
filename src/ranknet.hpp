@@ -1,5 +1,4 @@
-#ifndef DEF_RANKNET_H
-#define DEF_RANKNET_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -103,4 +102,3 @@ private:
   double sigma;
 };
 
-#endif

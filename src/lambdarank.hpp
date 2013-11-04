@@ -1,5 +1,4 @@
-#ifndef DEF_LAMBDARANK_H
-#define DEF_LAMBDARANK_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -87,4 +86,3 @@ private:
   NdcgOptimizer opt;
 };
 
-#endif

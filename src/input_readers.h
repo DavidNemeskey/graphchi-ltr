@@ -1,6 +1,4 @@
-#ifndef DEF_INPUT_READERS_H
-#define DEF_INPUT_READERS_H
-
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -152,4 +150,3 @@ private:
   std::stringstream ss;
 };
 
-#endif

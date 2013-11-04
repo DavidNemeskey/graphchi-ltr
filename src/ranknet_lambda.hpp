@@ -1,5 +1,4 @@
-#ifndef DEF_RANKNET_LAMBDA_H
-#define DEF_RANKNET_LAMBDA_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -88,4 +87,3 @@ protected:
   double sigma;
 };
 
-#endif

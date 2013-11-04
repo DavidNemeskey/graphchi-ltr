@@ -1,5 +1,4 @@
-#ifndef LEARNING_RATE_H
-#define LEARNING_RATE_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -151,4 +150,3 @@ private:
 LearningRate* create_learning_rate_function(const std::string& reflection_name)
   throw (std::invalid_argument);
 
-#endif

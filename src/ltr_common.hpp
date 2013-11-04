@@ -1,5 +1,4 @@
-#ifndef DEF_LTR_COMMON_H
-#define DEF_LTR_COMMON_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -113,4 +112,3 @@ typedef chivector<double, EHeader> FeatureEdge;
 
 //const vid_t max_query_id = std::numeric_limits<vid_t>::max() / 2 - 1;
 
-#endif

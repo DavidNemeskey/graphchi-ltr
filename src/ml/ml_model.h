@@ -1,5 +1,4 @@
-#ifndef DEF_ML_MODEL_H
-#define DEF_ML_MODEL_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -138,5 +137,3 @@ protected:
 };
 
 // TODO: learning_rate to class!
-#endif
-

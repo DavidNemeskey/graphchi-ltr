@@ -1,5 +1,4 @@
-#ifndef DEF_LTR_ALGORITHM_H
-#define DEF_LTR_ALGORITHM_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -281,4 +280,3 @@ protected:
   std::auto_ptr<DifferentiableModel> last_model;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef DEF_NEURAL_NET_ACTIVATION_H
-#define DEF_NEURAL_NET_ACTIVATION_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -113,4 +112,3 @@ private:
   double K;
 };
 
-#endif

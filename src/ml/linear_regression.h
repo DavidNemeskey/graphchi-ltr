@@ -1,5 +1,4 @@
-#ifndef DEF_LINEAR_REGRESSION_H
-#define DEF_LINEAR_REGRESSION_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -80,4 +79,3 @@ private:
   VectorXd gradients;
 };
 
-#endif

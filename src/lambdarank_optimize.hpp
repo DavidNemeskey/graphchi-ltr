@@ -1,5 +1,4 @@
-#ifndef DEF_LAMBDARANK_OPTIMIZE_H
-#define DEF_LAMBDARANK_OPTIMIZE_H
+#pragma once
 /**
  * @file
  * @author  David Nemeskey
@@ -120,4 +119,3 @@ private:
   std::map<int, int> rank_map;
 };
 
-#endif

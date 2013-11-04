@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "ml/data_container.h"
-#include "ml/learning_rate.h"
 #include "ml/utils.h"
 
 using Eigen::Map;
@@ -43,11 +42,7 @@ void RegressionTree::create_sorted(const DataContainer& data) {
   }
 }
 
-/**
- * @param[in] delta if the error does not decrease by at least @p delta, stop.
- * @param[in] q if one of the children would have at most q nodes, stop.
- */
-void RegressionTree::build_tree(const DataContainer& data, double delta, size_t q) {
+ArrayXi RegressionTree::build_tree(const DataContainer& data, double delta, size_t q) {
   create_sorted(data);
 
   tree = new RealNode(0);
@@ -58,6 +53,8 @@ void RegressionTree::build_tree(const DataContainer& data, double delta, size_t 
   split_node(tree, data, valid, max_id, valid.size(), delta, q);
 
   sorted.resize(0, 0);
+  num_nodes = static_cast<size_t>(max_id) + 1;
+  return valid;
 }
 
 void RegressionTree::split_node(Node* node, const DataContainer& data,
@@ -81,7 +78,7 @@ void RegressionTree::split_node(Node* node, const DataContainer& data,
 
   /* Iterate through all features. */
   for (size_t f = 0; f < data.dimensions; f++) {
-    /* The outputs sorted by the current feature. */
+    /* The outputs sorted by the current feature for the samples under the current node. */
     for (size_t i = 0, j = 0; j < sorted_outputs.size(); i++) {
       if (valid(sorted(i, f)) == node->id)
         sorted_outputs(j++) = outputs_(sorted(i, f));
@@ -167,6 +164,30 @@ void RegressionTree::split_node(Node* node, const DataContainer& data,
   }
 }
 
+void RegressionTree::set_output(Node* node, double output) {
+  node->output = output;
+}
+void RegressionTree::set_output(int node_id, double output)
+    throw (std::invalid_argument) {
+  if (!set_output(tree, node_id, output)) {
+    throw std::invalid_argument("no such node");
+  }
+}
+
+bool RegressionTree::set_output(Node* node, int node_id, double output)
+    throw (std::invalid_argument) {
+  if (node->id == node_id) {
+    node->output = output;
+    return true;
+  } else if (node->left != NULL) {
+    return (set_output(node->left, node_id, output) == true)
+           ? true
+           : set_output(node->right, node_id, output);
+  } else {
+    return false;
+  }
+}
+
 // TODO: IMPLEMENT!
 double RegressionTree::score(double* const& features) const {
   return 0;
@@ -202,6 +223,7 @@ RegressionTree::Node::~Node() {
   if (left != NULL) {
     delete left;
     delete right;
+    left = right = NULL;
   }
 }
 
@@ -257,8 +279,11 @@ void test_regression_tree() {
   d.read_data_item(0, f, 4);
   d.finalize_data();
 
-  RegressionTree r;
-  r.build_tree(d, 0, 2);
-  std::cout << r.str();
+  // Core dump if it's just RegressionTree r; TODO: why?!
+  RegressionTree* r = new RegressionTree();
+  ArrayXi iii = r->build_tree(d, 0, 2);
+  std::cout << r->str();
+  std::cout << "num_nodes " << r->num_nodes << std::endl;
+  std::cout << "mapping " << std::endl << iii << std::endl;
 }
 

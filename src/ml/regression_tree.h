@@ -23,11 +23,10 @@
  * In-memory regression tree model.
  */
 
-//#include "ml_model.h"
-
-#include <Eigen/Dense>
 #include <string>
 #include <sstream>
+#include <stdexcept>
+#include <Eigen/Dense>
 
 #include "ml/ml_model.h"
 
@@ -61,7 +60,7 @@ protected:
 
     Node(int id);
     /** Deletes the whole tree under the current node. */
-    ~Node();
+    virtual ~Node();
     /*
      * A node is a leaf if both @c left and @c right is @c NULL (== one of them,
      * as there are no intermediate nodes with only one child).
@@ -110,8 +109,9 @@ public:
    * @param[in] data the data we are learning from.
    * @param[in] delta if the error does not decrease by at least @p delta, stop.
    * @param[in] q if one of the children would have at most q nodes, stop.
+   * @return the learning sample -> node id mapping as an array.
    */
-  void build_tree(const DataContainer& data, double delta, size_t q);
+  ArrayXi build_tree(const DataContainer& data, double delta, size_t q);
 
   // TODO: does this model need gradients at all? I don't think so.
 
@@ -120,7 +120,7 @@ public:
   /** Prints the tree. */
   std::string str() const;
 
-private:
+//private:
   /**
    * Used by str(): recursively traverses the tree, and collects the string
    * representation in @param ss.
@@ -142,8 +142,18 @@ private:
                   ArrayXi& valid, int& max_id,
                   ArrayXi::Index num_docs, double delta, size_t q);
 
-  /** The learning rate function. */
-  LearningRate* learning_rate;
+  /** Sets the output for node @p node. */
+  void set_output(Node* node, double output);
+  /**
+   * Sets the output for the node whose id is @p node_id.
+   * @throw std::invalid_argument if @p node_id does not correspond to a node in
+   *                              the tree.
+   */
+  void set_output(int node_id, double output) throw (std::invalid_argument);
+
+  /** Recursive helper method for set_output(int, double). */
+  bool set_output(Node* node, int node_id, double output)
+      throw (std::invalid_argument);
 
   /**
    * An index of data. The value of the <tt>n</tt>th cell in each column in
@@ -154,6 +164,9 @@ private:
 
   /** The tree. */
   RealNode* tree;
+
+  /** Number of nodes in the tree. */
+  size_t num_nodes;
 };
 
 void test_regression_tree();
